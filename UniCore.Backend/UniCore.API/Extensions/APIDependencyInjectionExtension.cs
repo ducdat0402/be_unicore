@@ -1,0 +1,36 @@
+namespace UniCore.API.Extensions
+{
+    public static class APIDependencyInjectionExtension
+    {
+        public static void AddAPIServices(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddApiVersioningService();
+
+            services.AddControllers();
+
+            services.AddOpenApi();
+
+            services.AddSwaggerGenService();
+
+            services.AddHealthChecks();
+
+            services.AddAuthenticationPolicyService(configuration);
+
+            services.AddAuthorizationPolicyService();
+
+            services.AddCorsService();
+
+            services.AddBackendLocalizationServices();
+
+            services.AddExceptionHandler<GlobalExceptionExtension>();
+
+            services.AddProblemDetails();
+
+            services.AddMemoryCache();
+
+            services.AddForwardedHeadersOptionsService();
+
+            services.AddRateLimitingService();
+        }
+    }
+}
