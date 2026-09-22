@@ -61,6 +61,22 @@ namespace UniCore.Helper.Constant
             public const string CodeAlreadyExists = "Permission.CodeAlreadyExists";
         }
 
+        public static class Announcement
+        {
+            public const string GetAllSuccess = "Announcement.GetAllSuccess";
+            public const string GetByIdSuccess = "Announcement.GetByIdSuccess";
+            public const string CreateSuccess = "Announcement.CreateSuccess";
+            public const string UpdateSuccess = "Announcement.UpdateSuccess";
+            public const string DeleteSuccess = "Announcement.DeleteSuccess";
+            public const string PreviewSuccess = "Announcement.PreviewSuccess";
+            public const string PublishSuccess = "Announcement.PublishSuccess";
+            public const string CancelSuccess = "Announcement.CancelSuccess";
+            public const string DeliveryReportSuccess = "Announcement.DeliveryReportSuccess";
+            public const string GetPublicListSuccess = "Announcement.GetPublicListSuccess";
+            public const string GetPublicByIdSuccess = "Announcement.GetPublicByIdSuccess";
+            public const string NotFound = "Announcement.NotFound";
+        }
+
         public static class System
         {
             public const string ValidationFailed = "System.ValidationFailed";

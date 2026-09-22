@@ -4,5 +4,6 @@ namespace UniCore.Application.Contract.Repository.Enitity.v1
 {
     public interface ISchoolClassRepository : IRepository<SchoolClass>
     {
+        Task<SchoolClass?> GetByIdAsync(string id, CancellationToken cancellationToken = default);
     }
 }

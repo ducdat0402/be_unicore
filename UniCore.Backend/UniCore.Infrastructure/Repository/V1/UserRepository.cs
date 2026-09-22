@@ -42,5 +42,38 @@ namespace UniCore.Infrastructure.Repository.V1
                 .ThenInclude(e => e.Permission)
                 .FirstOrDefaultAsync(u => u.Username.Equals(username), cancellationToken);
         }
+
+        public async Task<List<string>> GetActiveStudentIdsAsync(CancellationToken cancellationToken = default)
+        {
+            return await _dbSet
+                .AsNoTracking()
+                .Where(u =>
+                    u.IsActive &&
+                    u.UserRoles.Any(ur => ur.Role != null && ur.Role.Name == "Student" && ur.Role.IsActive))
+                .Select(u => u.Id)
+                .ToListAsync(cancellationToken);
+        }
+
+        public async Task<List<string>> GetActiveStudentIdsByIdsAsync(IEnumerable<string> studentIds, CancellationToken cancellationToken = default)
+        {
+            var ids = studentIds
+                .Where(id => !string.IsNullOrWhiteSpace(id))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (ids.Count == 0)
+            {
+                return new List<string>();
+            }
+
+            return await _dbSet
+                .AsNoTracking()
+                .Where(u =>
+                    ids.Contains(u.Id) &&
+                    u.IsActive &&
+                    u.UserRoles.Any(ur => ur.Role != null && ur.Role.Name == "Student" && ur.Role.IsActive))
+                .Select(u => u.Id)
+                .ToListAsync(cancellationToken);
+        }
     }
 }

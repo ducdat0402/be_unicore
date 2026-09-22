@@ -9,7 +9,7 @@ public class Announcement
     public string Content { get; set; } = string.Empty;
     public string Type { get; set; } = "NORMAL";
     public string Status { get; set; } = "DRAFT";
-    public string ScopeType { get; set; } = "ALL";
+    public string ScopeType { get; set; } = "PUBLIC";
     public string? ScopeValue { get; set; }
     public bool RequireAcknowledgement { get; set; } = false;
     public DateTime? PublishDate { get; set; }

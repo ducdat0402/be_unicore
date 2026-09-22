@@ -115,6 +115,8 @@
     <None Include="dbo\SeedData\12_SeedWhitelistedEmails.sql" />
     <None Include="dbo\SeedData\13_SeedAnnouncements.sql" />
     <None Include="dbo\SeedData\14_SeedAnnouncementStudents.sql" />
+    <None Include="dbo\SeedData\15_AnnouncementPhase1_Manual.sql" />
+    <None Include="dbo\SeedData\16_MigrateAnnouncementScopes.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="dbo\Script.PostDeployment.sql" />

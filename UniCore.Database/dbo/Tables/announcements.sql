@@ -19,7 +19,7 @@ CREATE TABLE [dbo].[announcements] (
     PRIMARY KEY CLUSTERED ([id] ASC),
     CONSTRAINT [CK_announcements_type] CHECK ([type] IN ('NORMAL', 'IMPORTANT', 'URGENT')),
     CONSTRAINT [CK_announcements_status] CHECK ([status] IN ('DRAFT', 'PUBLISHED', 'CANCELLED')),
-    CONSTRAINT [CK_announcements_scope_type] CHECK ([scope_type] IN ('ALL', 'COHORT', 'CLASS', 'MAJOR', 'STUDENT')),
+    CONSTRAINT [CK_announcements_scope_type] CHECK ([scope_type] IN ('PUBLIC', 'DEPARTMENT', 'CLASS', 'STUDENT')),
     CONSTRAINT [CK_announcements_dates] CHECK ([expired_date] IS NULL OR [publish_date] IS NULL OR [expired_date] > [publish_date]),
     CONSTRAINT [FK_announcements_created_by] FOREIGN KEY ([created_by]) REFERENCES [dbo].[users] ([id]),
     CONSTRAINT [FK_announcements_updated_by] FOREIGN KEY ([updated_by]) REFERENCES [dbo].[users] ([id])
