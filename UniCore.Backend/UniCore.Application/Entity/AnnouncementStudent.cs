@@ -7,6 +7,8 @@ public class AnnouncementStudent
     public string StudentId { get; set; } = string.Empty;
     public DateTime? ViewedAt { get; set; }
     public DateTime? AcknowledgedAt { get; set; }
+    /// <summary>False until client polls GET get-new and BE marks notification as delivered to FE queue.</summary>
+    public bool IsSent { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public virtual Announcement Announcement { get; set; } = null!;

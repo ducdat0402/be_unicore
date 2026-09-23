@@ -16,8 +16,14 @@ namespace UniCore.Application.Contract.Repository.Enitity.v1
         Task<(List<Announcement> Items, int TotalCount)> GetAnnouncementsForStudentAsync(
             string studentId,
             string? typeFilter,
+            string? timeStatus,
             int page,
             int pageSize,
+            CancellationToken cancellationToken = default);
+
+        Task<Announcement?> GetAnnouncementVisibleToStudentAsync(
+            string studentId,
+            string announcementId,
             CancellationToken cancellationToken = default);
     }
 }

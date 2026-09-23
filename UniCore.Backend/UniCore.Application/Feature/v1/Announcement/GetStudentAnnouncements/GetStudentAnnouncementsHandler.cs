@@ -32,6 +32,7 @@ namespace UniCore.Application.Feature.v1.Announcement.GetStudentAnnouncements
             var announcements = await _announcementRepository.GetAnnouncementsForStudentAsync(
                 request.StudentId,
                 request.Type,
+                timeStatus: "active",
                 request.Page,
                 request.PageSize,
                 cancellationToken);

@@ -18,6 +18,7 @@ namespace UniCore.Infrastructure.Database.ModelCreating
                 entity.Property(e => e.StudentId).HasColumnName("student_id").IsRequired().HasMaxLength(50);
                 entity.Property(e => e.ViewedAt).HasColumnName("viewed_at");
                 entity.Property(e => e.AcknowledgedAt).HasColumnName("acknowledged_at");
+                entity.Property(e => e.IsSent).HasColumnName("is_sent").HasDefaultValue(false);
                 entity.Property(e => e.CreatedAt).HasColumnName("created_at").HasDefaultValueSql("sysutcdatetime()");
 
                 entity.HasIndex(e => new { e.AnnouncementId, e.StudentId }).IsUnique();

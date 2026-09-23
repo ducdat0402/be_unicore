@@ -1,4 +1,5 @@
 using MapsterMapper;
+using Microsoft.EntityFrameworkCore;
 using UniCore.Application.Contract.Repository.Enitity.v1;
 using UniCore.Application.Entity;
 using UniCore.Infrastructure.Database;
@@ -22,6 +23,17 @@ namespace UniCore.Infrastructure.Repository.V1
 
             await _dbSet.AddRangeAsync(list, cancellationToken);
             await _UniCoreDbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task<List<AnnouncementEmailLog>> GetByAnnouncementIdAsync(
+            string announcementId,
+            CancellationToken cancellationToken = default)
+        {
+            return await _dbSet
+                .AsNoTracking()
+                .Where(l => l.AnnouncementId == announcementId)
+                .OrderByDescending(l => l.SentAt ?? l.CreatedAt)
+                .ToListAsync(cancellationToken);
         }
     }
 }

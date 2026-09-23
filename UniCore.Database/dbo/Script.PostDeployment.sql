@@ -25,6 +25,7 @@ PRINT 'Executing Post-Deployment Seed Scripts...';
 :r .\SeedData\18_CreateUserFaceProfiles.sql
 :r .\SeedData\19_CreateFaceAuthLogs.sql
 :r .\SeedData\20_AlterAnnouncementScopeValueLength.sql
+:r .\SeedData\21_AddAnnouncementStudentIsSent.sql
 
 PRINT 'Post-Deployment Seed Data complete.';
 GO

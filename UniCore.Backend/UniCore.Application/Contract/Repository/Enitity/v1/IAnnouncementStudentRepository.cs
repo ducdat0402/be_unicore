@@ -26,5 +26,16 @@ namespace UniCore.Application.Contract.Repository.Enitity.v1
         /// Mark announcement as acknowledged by student. Returns the acknowledged_at timestamp.
         /// </summary>
         Task<DateTime> MarkAsAcknowledgedAsync(string announcementId, string studentId, CancellationToken cancellationToken = default);
+
+        Task<List<AnnouncementStudent>> GetUnsentWithAnnouncementAsync(
+            string studentId,
+            CancellationToken cancellationToken = default);
+
+        Task MarkAsSentAsync(IEnumerable<string> announcementStudentIds, CancellationToken cancellationToken = default);
+
+        Task<AnnouncementStudent?> GetLinkAsync(
+            string studentId,
+            string announcementId,
+            CancellationToken cancellationToken = default);
     }
 }

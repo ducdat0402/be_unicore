@@ -18,6 +18,7 @@ namespace UniCore.Infrastructure.Repository.V1
             return await _dbSet
                 .AsNoTracking()
                 .Include(s => s.Student)
+                .ThenInclude(u => u.UserProfile)
                 .Where(s => s.AnnouncementId == announcementId)
                 .OrderBy(s => s.Student.Username)
                 .ToListAsync(cancellationToken);
@@ -43,6 +44,7 @@ namespace UniCore.Infrastructure.Repository.V1
                 Id = Guid.NewGuid().ToString(),
                 AnnouncementId = announcementId,
                 StudentId = studentId,
+                IsSent = false,
                 CreatedAt = now
             });
 
@@ -100,6 +102,7 @@ namespace UniCore.Infrastructure.Repository.V1
                     AnnouncementId = announcementId,
                     StudentId = studentId,
                     ViewedAt = now,
+                    IsSent = false,
                     CreatedAt = now
                 };
                 await _dbSet.AddAsync(existing, cancellationToken);
@@ -162,6 +165,54 @@ namespace UniCore.Infrastructure.Repository.V1
 
             await _UniCoreDbContext.SaveChangesAsync(cancellationToken);
             return now;
+        }
+
+        public async Task<List<AnnouncementStudent>> GetUnsentWithAnnouncementAsync(
+            string studentId,
+            CancellationToken cancellationToken = default)
+        {
+            var now = DateTime.UtcNow;
+            return await _dbSet
+                .AsNoTracking()
+                .Include(s => s.Announcement)
+                .Where(s =>
+                    s.StudentId == studentId
+                    && !s.IsSent
+                    && s.Announcement.PublishDate <= now
+                    && s.Announcement.ExpiredDate > now)
+                .OrderByDescending(s => s.Announcement.PublishDate)
+                .ToListAsync(cancellationToken);
+        }
+
+        public async Task MarkAsSentAsync(IEnumerable<string> announcementStudentIds, CancellationToken cancellationToken = default)
+        {
+            var ids = announcementStudentIds
+                .Where(id => !string.IsNullOrWhiteSpace(id))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (ids.Count == 0)
+            {
+                return;
+            }
+
+            await _dbSet
+                .Where(s => ids.Contains(s.Id))
+                .ExecuteUpdateAsync(
+                    setters => setters.SetProperty(s => s.IsSent, true),
+                    cancellationToken);
+        }
+
+        public async Task<AnnouncementStudent?> GetLinkAsync(
+            string studentId,
+            string announcementId,
+            CancellationToken cancellationToken = default)
+        {
+            return await _dbSet
+                .AsNoTracking()
+                .FirstOrDefaultAsync(
+                    s => s.StudentId == studentId && s.AnnouncementId == announcementId,
+                    cancellationToken);
         }
     }
 }

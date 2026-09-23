@@ -55,34 +55,37 @@ namespace UniCore.Infrastructure.Repository.V1
         public async Task<(List<Announcement> Items, int TotalCount)> GetAnnouncementsForStudentAsync(
             string studentId,
             string? typeFilter,
+            string? timeStatus,
             int page,
             int pageSize,
             CancellationToken cancellationToken = default)
         {
             var now = DateTime.UtcNow;
-
-            // Get announcements where:
-            // 1. PUBLIC scope (visible to all) OR
-            // 2. Student is in AnnouncementStudents list
-            // 3. Currently active (PublishDate <= now < ExpiredDate)
             var query = _dbSet
                 .AsNoTracking()
                 .Where(a =>
-                    a.PublishDate <= now &&
-                    a.ExpiredDate > now &&
-                    (a.ScopeType == AnnouncementConstants.Scope.Public ||
-                     a.AnnouncementStudents.Any(s => s.StudentId == studentId)));
+                    a.ScopeType == AnnouncementConstants.Scope.Public
+                    || a.ScopeType == AnnouncementConstants.Scope.Students
+                    || a.AnnouncementStudents.Any(s => s.StudentId == studentId));
 
-            // Apply type filter (Type = NORMAL/IMPORTANT/URGENT)
+            var normalizedTimeStatus = string.IsNullOrWhiteSpace(timeStatus)
+                ? "active"
+                : timeStatus.Trim().ToLowerInvariant();
+
+            query = normalizedTimeStatus switch
+            {
+                "expired" => query.Where(a => now >= a.ExpiredDate),
+                "active" => query.Where(a => a.PublishDate <= now && a.ExpiredDate > now),
+                _ => query.Where(a => a.PublishDate <= now && a.ExpiredDate > now)
+            };
+
             if (!string.IsNullOrWhiteSpace(typeFilter))
             {
                 query = query.Where(a => a.Type == typeFilter);
             }
 
-            // Get total count
             var totalCount = await query.CountAsync(cancellationToken);
 
-            // Get paginated items (order by type priority: URGENT > IMPORTANT > NORMAL)
             var items = await query
                 .OrderByDescending(a => a.Type == AnnouncementConstants.Type.Urgent ? 3 :
                                         a.Type == AnnouncementConstants.Type.Important ? 2 : 1)
@@ -92,6 +95,21 @@ namespace UniCore.Infrastructure.Repository.V1
                 .ToListAsync(cancellationToken);
 
             return (items, totalCount);
+        }
+
+        public async Task<Announcement?> GetAnnouncementVisibleToStudentAsync(
+            string studentId,
+            string announcementId,
+            CancellationToken cancellationToken = default)
+        {
+            return await _dbSet
+                .AsNoTracking()
+                .FirstOrDefaultAsync(a =>
+                    a.Id == announcementId
+                    && (a.ScopeType == AnnouncementConstants.Scope.Public
+                        || a.ScopeType == AnnouncementConstants.Scope.Students
+                        || a.AnnouncementStudents.Any(s => s.StudentId == studentId)),
+                    cancellationToken);
         }
     }
 }

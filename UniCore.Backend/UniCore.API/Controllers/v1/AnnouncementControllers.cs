@@ -12,9 +12,13 @@ using UniCore.Application.Feature.v1.Announcement.GetAnnouncementById;
 using UniCore.Application.Feature.v1.Announcement.GetDeliveryReport;
 using UniCore.Application.Feature.v1.Announcement.GetPublicAnnouncementById;
 using UniCore.Application.Feature.v1.Announcement.GetPublicAnnouncements;
+using UniCore.Application.Feature.v1.Announcement.GetStudentAnnouncementById;
+using UniCore.Application.Feature.v1.Announcement.GetStudentAnnouncementWorkflowList;
 using UniCore.Application.Feature.v1.Announcement.GetStudentAnnouncements;
+using UniCore.Application.Feature.v1.Announcement.GetStudentNewAnnouncements;
 using UniCore.Application.Feature.v1.Announcement.MarkAnnouncementAcknowledged;
 using UniCore.Application.Feature.v1.Announcement.MarkAnnouncementViewed;
+using UniCore.Application.Feature.v1.Announcement.Workflow;
 using UniCore.Application.Feature.v1.Announcement.PreviewRecipients;
 using UniCore.Application.Feature.v1.Announcement.Targets;
 using UniCore.Application.Feature.v1.Announcement.UpdateAnnouncement;
@@ -218,19 +222,98 @@ namespace UniCore.API.Controllers.v1
     public class StudentAnnouncementController : BaseController
     {
         private readonly GetStudentAnnouncementsHandler _getStudentAnnouncementsHandler;
+        private readonly GetStudentAnnouncementWorkflowListHandler _getWorkflowListHandler;
+        private readonly GetStudentAnnouncementByIdHandler _getStudentByIdHandler;
+        private readonly GetStudentNewAnnouncementsHandler _getNewAnnouncementsHandler;
         private readonly MarkAnnouncementViewedHandler _markViewedHandler;
         private readonly MarkAnnouncementAcknowledgedHandler _markAcknowledgedHandler;
 
         public StudentAnnouncementController(
             GetStudentAnnouncementsHandler getStudentAnnouncementsHandler,
+            GetStudentAnnouncementWorkflowListHandler getWorkflowListHandler,
+            GetStudentAnnouncementByIdHandler getStudentByIdHandler,
+            GetStudentNewAnnouncementsHandler getNewAnnouncementsHandler,
             MarkAnnouncementViewedHandler markViewedHandler,
             MarkAnnouncementAcknowledgedHandler markAcknowledgedHandler,
             IJsonStringLocalizer localizer)
             : base(localizer)
         {
             _getStudentAnnouncementsHandler = getStudentAnnouncementsHandler;
+            _getWorkflowListHandler = getWorkflowListHandler;
+            _getStudentByIdHandler = getStudentByIdHandler;
+            _getNewAnnouncementsHandler = getNewAnnouncementsHandler;
             _markViewedHandler = markViewedHandler;
             _markAcknowledgedHandler = markAcknowledgedHandler;
+        }
+
+        /// <summary>Workflow list (active/expired), no pagination — equivalent to GET .../me?status=</summary>
+        [HttpGet("me")]
+        [ProducesResponseType(typeof(StudentAnnouncementWorkflowListResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetMyWorkflowList(
+            [FromQuery] string status = "active",
+            CancellationToken cancellationToken = default)
+        {
+            var studentId = GetCurrentUserId();
+            var result = await _getWorkflowListHandler.HandleAsync(
+                new GetStudentAnnouncementWorkflowListRequest { StudentId = studentId, Status = status },
+                cancellationToken);
+            return Ok(result);
+        }
+
+        [HttpGet("get-new")]
+        [ProducesResponseType(typeof(StudentAnnouncementWorkflowListResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetNewAnnouncements(CancellationToken cancellationToken = default)
+        {
+            var studentId = GetCurrentUserId();
+            var result = await _getNewAnnouncementsHandler.HandleAsync(
+                new GetStudentNewAnnouncementsRequest { StudentId = studentId },
+                cancellationToken);
+            return Ok(result);
+        }
+
+        [HttpGet("me/{announcementId}")]
+        [ProducesResponseType(typeof(StudentAnnouncementWorkflowItemDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetMyAnnouncementDetail(
+            string announcementId,
+            CancellationToken cancellationToken = default)
+        {
+            var studentId = GetCurrentUserId();
+            try
+            {
+                var result = await _getStudentByIdHandler.HandleAsync(
+                    new GetStudentAnnouncementByIdRequest { StudentId = studentId, AnnouncementId = announcementId },
+                    cancellationToken);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("confirm-acknowledged")]
+        [ProducesResponseType(typeof(MarkAnnouncementAcknowledgedResponseDTO), StatusCodes.Status200OK)]
+        public async Task<IActionResult> ConfirmAcknowledged(
+            [FromBody] ConfirmAcknowledgedRequestDto body,
+            CancellationToken cancellationToken = default)
+        {
+            var studentId = GetCurrentUserId();
+            var request = new MarkAnnouncementAcknowledgedRequestDTO
+            {
+                AnnouncementId = body.AnnouncementId,
+                StudentId = studentId
+            };
+
+            try
+            {
+                var result = await _markAcknowledgedHandler.HandleAsync(request, cancellationToken);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
         }
 
         [HttpGet]

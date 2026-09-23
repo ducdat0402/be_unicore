@@ -4,6 +4,7 @@ CREATE TABLE [dbo].[announcement_students] (
     [student_id]      VARCHAR (50)  NOT NULL,
     [viewed_at]       DATETIME2 (7) NULL,
     [acknowledged_at] DATETIME2 (7) NULL,
+    [is_sent]         BIT           DEFAULT ((0)) NOT NULL,
     [created_at]      DATETIME2 (7) DEFAULT (sysutcdatetime()) NOT NULL,
     PRIMARY KEY CLUSTERED ([id] ASC),
     CONSTRAINT [UQ_announcement_students] UNIQUE ([announcement_id], [student_id]),
