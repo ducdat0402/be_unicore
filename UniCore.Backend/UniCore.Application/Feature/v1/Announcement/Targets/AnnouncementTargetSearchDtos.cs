@@ -2,12 +2,6 @@ using System.Text.Json.Serialization;
 
 namespace UniCore.Application.Feature.v1.Announcement.Targets
 {
-    public class AnnouncementTargetSearchQuery
-    {
-        public string? Search { get; set; }
-        public int? Limit { get; set; }
-    }
-
     public class AnnouncementTargetSearchMetaDto
     {
         public int Total { get; set; }

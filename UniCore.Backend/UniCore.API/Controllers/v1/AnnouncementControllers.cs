@@ -149,11 +149,21 @@ namespace UniCore.API.Controllers.v1
     [Route("api/v{version:apiVersion}/admin/announcements/targets")]
     public class AdminAnnouncementTargetsController : ControllerBase
     {
-        private readonly IAnnouncementTargetSearchService _targetSearchService;
+        private readonly SearchCourseTargetsHandler _searchCourseTargetsHandler;
+        private readonly SearchClassTargetsHandler _searchClassTargetsHandler;
+        private readonly SearchDepartmentTargetsHandler _searchDepartmentTargetsHandler;
+        private readonly SearchStudentTargetsHandler _searchStudentTargetsHandler;
 
-        public AdminAnnouncementTargetsController(IAnnouncementTargetSearchService targetSearchService)
+        public AdminAnnouncementTargetsController(
+            SearchCourseTargetsHandler searchCourseTargetsHandler,
+            SearchClassTargetsHandler searchClassTargetsHandler,
+            SearchDepartmentTargetsHandler searchDepartmentTargetsHandler,
+            SearchStudentTargetsHandler searchStudentTargetsHandler)
         {
-            _targetSearchService = targetSearchService;
+            _searchCourseTargetsHandler = searchCourseTargetsHandler;
+            _searchClassTargetsHandler = searchClassTargetsHandler;
+            _searchDepartmentTargetsHandler = searchDepartmentTargetsHandler;
+            _searchStudentTargetsHandler = searchStudentTargetsHandler;
         }
 
         [HttpGet("courses")]
@@ -163,8 +173,8 @@ namespace UniCore.API.Controllers.v1
             [FromQuery] int? limit,
             CancellationToken cancellationToken)
         {
-            var result = await _targetSearchService.SearchCoursesAsync(
-                new AnnouncementTargetSearchQuery { Search = search, Limit = limit },
+            var result = await _searchCourseTargetsHandler.HandleAsync(
+                new SearchCourseTargetsRequest { Search = search, Limit = limit },
                 cancellationToken);
             return Ok(result);
         }
@@ -176,8 +186,8 @@ namespace UniCore.API.Controllers.v1
             [FromQuery] int? limit,
             CancellationToken cancellationToken)
         {
-            var result = await _targetSearchService.SearchClassesAsync(
-                new AnnouncementTargetSearchQuery { Search = search, Limit = limit },
+            var result = await _searchClassTargetsHandler.HandleAsync(
+                new SearchClassTargetsRequest { Search = search, Limit = limit },
                 cancellationToken);
             return Ok(result);
         }
@@ -189,8 +199,8 @@ namespace UniCore.API.Controllers.v1
             [FromQuery] int? limit,
             CancellationToken cancellationToken)
         {
-            var result = await _targetSearchService.SearchDepartmentsAsync(
-                new AnnouncementTargetSearchQuery { Search = search, Limit = limit },
+            var result = await _searchDepartmentTargetsHandler.HandleAsync(
+                new SearchDepartmentTargetsRequest { Search = search, Limit = limit },
                 cancellationToken);
             return Ok(result);
         }
@@ -202,8 +212,8 @@ namespace UniCore.API.Controllers.v1
             [FromQuery] int? limit,
             CancellationToken cancellationToken)
         {
-            var result = await _targetSearchService.SearchStudentsAsync(
-                new AnnouncementTargetSearchQuery { Search = search, Limit = limit },
+            var result = await _searchStudentTargetsHandler.HandleAsync(
+                new SearchStudentTargetsRequest { Search = search, Limit = limit },
                 cancellationToken);
             return Ok(result);
         }
