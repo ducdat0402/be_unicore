@@ -1,6 +1,7 @@
 using Mapster;
 using UniCore.Application.DTO.Entity;
 using UniCore.Application.Entity;
+using UniCore.Application.Feature.v1.Announcement;
 
 namespace UniCore.Application.MapperProfile
 {
@@ -13,7 +14,10 @@ namespace UniCore.Application.MapperProfile
                     dest => dest.TargetStudentIds,
                     src => src.AnnouncementStudents == null
                         ? new List<string>()
-                        : src.AnnouncementStudents.Select(s => s.StudentId).ToList());
+                        : src.AnnouncementStudents.Select(s => s.StudentId).ToList())
+                .Map(
+                    dest => dest.Status,
+                    src => AnnouncementLifecycle.ComputeStatus(src.PublishDate, src.ExpiredDate));
         }
     }
 }

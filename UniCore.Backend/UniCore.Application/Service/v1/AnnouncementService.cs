@@ -1,5 +1,4 @@
 using UniCore.Application.Contract.Service.v1;
-using UniCore.Application.Feature.v1.Announcement.CancelAnnouncement;
 using UniCore.Application.Feature.v1.Announcement.CreateAnnouncement;
 using UniCore.Application.Feature.v1.Announcement.DeleteAnnouncement;
 using UniCore.Application.Feature.v1.Announcement.GetAllAnnouncement;
@@ -8,7 +7,6 @@ using UniCore.Application.Feature.v1.Announcement.GetDeliveryReport;
 using UniCore.Application.Feature.v1.Announcement.GetPublicAnnouncementById;
 using UniCore.Application.Feature.v1.Announcement.GetPublicAnnouncements;
 using UniCore.Application.Feature.v1.Announcement.PreviewRecipients;
-using UniCore.Application.Feature.v1.Announcement.PublishAnnouncement;
 using UniCore.Application.Feature.v1.Announcement.UpdateAnnouncement;
 
 namespace UniCore.Application.Service.v1
@@ -21,8 +19,6 @@ namespace UniCore.Application.Service.v1
         private readonly UpdateAnnouncementHandler _updateHandler;
         private readonly DeleteAnnouncementHandler _deleteHandler;
         private readonly PreviewRecipientsHandler _previewHandler;
-        private readonly PublishAnnouncementHandler _publishHandler;
-        private readonly CancelAnnouncementHandler _cancelHandler;
         private readonly GetDeliveryReportHandler _deliveryReportHandler;
         private readonly GetPublicAnnouncementsHandler _getPublicListHandler;
         private readonly GetPublicAnnouncementByIdHandler _getPublicByIdHandler;
@@ -34,8 +30,6 @@ namespace UniCore.Application.Service.v1
             UpdateAnnouncementHandler updateHandler,
             DeleteAnnouncementHandler deleteHandler,
             PreviewRecipientsHandler previewHandler,
-            PublishAnnouncementHandler publishHandler,
-            CancelAnnouncementHandler cancelHandler,
             GetDeliveryReportHandler deliveryReportHandler,
             GetPublicAnnouncementsHandler getPublicListHandler,
             GetPublicAnnouncementByIdHandler getPublicByIdHandler)
@@ -46,8 +40,6 @@ namespace UniCore.Application.Service.v1
             _updateHandler = updateHandler;
             _deleteHandler = deleteHandler;
             _previewHandler = previewHandler;
-            _publishHandler = publishHandler;
-            _cancelHandler = cancelHandler;
             _deliveryReportHandler = deliveryReportHandler;
             _getPublicListHandler = getPublicListHandler;
             _getPublicByIdHandler = getPublicByIdHandler;
@@ -70,12 +62,6 @@ namespace UniCore.Application.Service.v1
 
         public Task<PreviewRecipientsResponseDTO> PreviewRecipientsAsync(PreviewRecipientsRequestDTO request, CancellationToken cancellationToken = default)
             => _previewHandler.HandleAsync(request, cancellationToken);
-
-        public Task<PublishAnnouncementResponseDTO> PublishAsync(PublishAnnouncementRequestDTO request, CancellationToken cancellationToken = default)
-            => _publishHandler.HandleAsync(request, cancellationToken);
-
-        public Task<CancelAnnouncementResponseDTO> CancelAsync(CancelAnnouncementRequestDTO request, CancellationToken cancellationToken = default)
-            => _cancelHandler.HandleAsync(request, cancellationToken);
 
         public Task<GetDeliveryReportResponseDTO> GetDeliveryReportAsync(string id, CancellationToken cancellationToken = default)
             => _deliveryReportHandler.HandleAsync(new GetDeliveryReportRequestDTO { Id = id }, cancellationToken);

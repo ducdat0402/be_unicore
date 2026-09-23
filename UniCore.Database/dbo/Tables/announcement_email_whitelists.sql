@@ -10,6 +10,6 @@ CREATE TABLE [dbo].[announcement_email_whitelists] (
     PRIMARY KEY CLUSTERED ([id] ASC),
     CONSTRAINT [UQ_announcement_email_whitelists] UNIQUE ([type], [value]),
     CONSTRAINT [CK_announcement_email_whitelists_type] CHECK ([type] IN ('EMAIL', 'DOMAIN')),
-    CONSTRAINT [CK_announcement_email_whitelists_status] CHECK ([status] IN ('ACTIVE', 'INACTIVE')),
+    CONSTRAINT [CK_announcement_email_whitelists_status] CHECK ([status] IN ('ACTIVE', 'INACTIVE'))
 );
 GO

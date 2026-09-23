@@ -19,12 +19,12 @@ namespace UniCore.Infrastructure.Database.ModelCreating
                 entity.Property(e => e.Description).HasColumnName("description").HasMaxLength(500);
                 entity.Property(e => e.Content).HasColumnName("content").IsRequired();
                 entity.Property(e => e.Type).HasColumnName("type").IsRequired().HasMaxLength(20);
-                entity.Property(e => e.Status).HasColumnName("status").IsRequired().HasMaxLength(20).HasDefaultValue("DRAFT");
+                entity.Property(e => e.Status).HasColumnName("status").IsRequired().HasMaxLength(20).HasDefaultValue("UPCOMING");
                 entity.Property(e => e.ScopeType).HasColumnName("scope_type").IsRequired().HasMaxLength(20);
                 entity.Property(e => e.ScopeValue).HasColumnName("scope_value").HasMaxLength(50);
                 entity.Property(e => e.RequireAcknowledgement).HasColumnName("require_acknowledgement").HasDefaultValue(false);
-                entity.Property(e => e.PublishDate).HasColumnName("publish_date");
-                entity.Property(e => e.ExpiredDate).HasColumnName("expired_date");
+                entity.Property(e => e.PublishDate).HasColumnName("publish_date").IsRequired();
+                entity.Property(e => e.ExpiredDate).HasColumnName("expired_date").IsRequired();
                 entity.Property(e => e.RecipientCount).HasColumnName("recipient_count");
                 entity.Property(e => e.CreatedAt).HasColumnName("created_at").HasDefaultValueSql("sysutcdatetime()");
                 entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");

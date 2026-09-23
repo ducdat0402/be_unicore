@@ -36,11 +36,17 @@ namespace UniCore.Application.Feature.v1.Announcement.UpdateAnnouncement
                 .NotEmpty()
                 .WithMessage("ScopeType is required.")
                 .Must(s => AnnouncementConstants.Scope.Supported.Contains(s))
-                .WithMessage("ScopeType must be PUBLIC, DEPARTMENT, CLASS, or STUDENT.");
+                .WithMessage("ScopeType must be PUBLIC, STUDENTS, DEPARTMENT, CLASS, COURSE, or SPECIFIC_STUDENTS.");
 
-            RuleFor(x => x)
-                .Must(x => !x.PublishDate.HasValue || !x.ExpiredDate.HasValue || x.ExpiredDate > x.PublishDate)
-                .WithMessage("ExpiredDate must be greater than PublishDate when both are provided.");
+            RuleFor(x => x.PublishDate)
+                .NotEmpty()
+                .WithMessage("PublishDate is required.");
+
+            RuleFor(x => x.ExpiredDate)
+                .NotEmpty()
+                .WithMessage("ExpiredDate is required.")
+                .GreaterThan(x => x.PublishDate)
+                .WithMessage("ExpiredDate must be greater than PublishDate.");
         }
     }
 }

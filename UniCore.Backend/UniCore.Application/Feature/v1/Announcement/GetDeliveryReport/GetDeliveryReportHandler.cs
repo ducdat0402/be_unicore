@@ -2,6 +2,7 @@ using FluentValidation;
 using FluentValidation.Results;
 using UniCore.Application.Contract.Repository.Enitity.v1;
 using UniCore.Application.Contract.RequestHandlerHub;
+using UniCore.Application.Feature.v1.Announcement;
 using UniCore.Helper.Constant;
 
 namespace UniCore.Application.Feature.v1.Announcement.GetDeliveryReport
@@ -40,23 +41,22 @@ namespace UniCore.Application.Feature.v1.Announcement.GetDeliveryReport
                 entity.Id,
                 cancellationToken);
 
-            var isPublishedOrCancelled =
-                string.Equals(entity.Status, AnnouncementConstants.Status.Published, StringComparison.OrdinalIgnoreCase)
-                || string.Equals(entity.Status, AnnouncementConstants.Status.Cancelled, StringComparison.OrdinalIgnoreCase);
-
-            if (!isPublishedOrCancelled && total == 0)
+            if (total == 0
+                && !AnnouncementConstants.Type.RequiresSideEffects(entity.Type)
+                && !string.Equals(entity.ScopeType, AnnouncementConstants.Scope.SpecificStudents, StringComparison.OrdinalIgnoreCase))
             {
                 throw new InvalidOperationException(
-                    "Delivery report is only available for PUBLISHED/CANCELLED announcements or announcements that already have recipients.");
+                    "Delivery report is only available for announcements with recipient tracking (IMPORTANT/URGENT or SPECIFIC_STUDENTS).");
             }
 
             var recipients = await _announcementStudentRepository.GetByAnnouncementIdAsync(entity.Id, cancellationToken);
+            var status = AnnouncementLifecycle.ComputeStatus(entity.PublishDate, entity.ExpiredDate);
 
             return new GetDeliveryReportResponseDTO
             {
                 AnnouncementId = entity.Id,
                 Title = entity.Title,
-                Status = entity.Status,
+                Status = status,
                 RecipientCount = total,
                 ViewedCount = viewed,
                 AcknowledgedCount = acknowledged,

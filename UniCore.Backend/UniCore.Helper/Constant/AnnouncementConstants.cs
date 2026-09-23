@@ -4,9 +4,9 @@ namespace UniCore.Helper.Constant
     {
         public static class Status
         {
-            public const string Draft = "DRAFT";
-            public const string Published = "PUBLISHED";
-            public const string Cancelled = "CANCELLED";
+            public const string Upcoming = "UPCOMING";
+            public const string Active = "ACTIVE";
+            public const string Expired = "EXPIRED";
         }
 
         public static class Type
@@ -19,19 +19,39 @@ namespace UniCore.Helper.Constant
             {
                 Normal, Important, Urgent
             };
+
+            public static bool RequiresSideEffects(string type) =>
+                string.Equals(type, Important, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(type, Urgent, StringComparison.OrdinalIgnoreCase);
         }
 
         public static class Scope
         {
             public const string Public = "PUBLIC";
+            public const string Students = "STUDENTS"; // all active verified students
             public const string Department = "DEPARTMENT";
             public const string Class = "CLASS";
-            public const string Student = "STUDENT";
+            public const string Course = "COURSE";
+            public const string SpecificStudents = "SPECIFIC_STUDENTS";
 
             public static readonly HashSet<string> Supported = new(StringComparer.OrdinalIgnoreCase)
             {
-                Public, Department, Class, Student
+                Public, Students, Department, Class, Course, SpecificStudents
             };
+        }
+
+        public static class EmailLogStatus
+        {
+            public const string Pending = "PENDING";
+            public const string Sent = "SENT";
+            public const string Failed = "FAILED";
+        }
+
+        public static class Whitelist
+        {
+            public const string Email = "EMAIL";
+            public const string Domain = "DOMAIN";
+            public const string Active = "ACTIVE";
         }
     }
 }

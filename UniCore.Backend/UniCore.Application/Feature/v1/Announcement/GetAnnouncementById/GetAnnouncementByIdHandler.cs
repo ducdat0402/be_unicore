@@ -4,6 +4,7 @@ using MapsterMapper;
 using UniCore.Application.Contract.Repository.Enitity.v1;
 using UniCore.Application.Contract.RequestHandlerHub;
 using UniCore.Application.DTO.Entity;
+using UniCore.Application.Feature.v1.Announcement;
 
 namespace UniCore.Application.Feature.v1.Announcement.GetAnnouncementById
 {
@@ -32,11 +33,15 @@ namespace UniCore.Application.Feature.v1.Announcement.GetAnnouncementById
             }
 
             var entity = await _announcementRepository.GetByIdWithDetailsAsync(request.Id, cancellationToken);
-
-            return new GetAnnouncementByIdResponseDTO
+            if (entity == null)
             {
-                Announcement = entity == null ? null : _mapper.Map<AnnouncementDTO>(entity)
-            };
+                return new GetAnnouncementByIdResponseDTO { Announcement = null };
+            }
+
+            var dto = _mapper.Map<AnnouncementDTO>(entity);
+            dto.Status = AnnouncementLifecycle.ComputeStatus(entity.PublishDate, entity.ExpiredDate);
+
+            return new GetAnnouncementByIdResponseDTO { Announcement = dto };
         }
     }
 }

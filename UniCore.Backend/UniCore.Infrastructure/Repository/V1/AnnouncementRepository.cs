@@ -32,11 +32,10 @@ namespace UniCore.Infrastructure.Repository.V1
             return await _dbSet
                 .AsNoTracking()
                 .Where(a =>
-                    a.Status == AnnouncementConstants.Status.Published &&
                     a.ScopeType == AnnouncementConstants.Scope.Public &&
-                    (a.PublishDate == null || a.PublishDate <= now) &&
-                    (a.ExpiredDate == null || a.ExpiredDate > now))
-                .OrderByDescending(a => a.PublishDate ?? a.CreatedAt)
+                    a.PublishDate <= now &&
+                    a.ExpiredDate > now)
+                .OrderByDescending(a => a.PublishDate)
                 .ToListAsync(cancellationToken);
         }
 
@@ -47,10 +46,9 @@ namespace UniCore.Infrastructure.Repository.V1
                 .AsNoTracking()
                 .FirstOrDefaultAsync(a =>
                     a.Id == id &&
-                    a.Status == AnnouncementConstants.Status.Published &&
                     a.ScopeType == AnnouncementConstants.Scope.Public &&
-                    (a.PublishDate == null || a.PublishDate <= now) &&
-                    (a.ExpiredDate == null || a.ExpiredDate > now),
+                    a.PublishDate <= now &&
+                    a.ExpiredDate > now,
                     cancellationToken);
         }
     }

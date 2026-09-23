@@ -2,6 +2,7 @@ using FluentValidation;
 using FluentValidation.Results;
 using UniCore.Application.Contract.Repository.Enitity.v1;
 using UniCore.Application.Contract.RequestHandlerHub;
+using UniCore.Application.Feature.v1.Announcement;
 using UniCore.Helper.Constant;
 
 namespace UniCore.Application.Feature.v1.Announcement.DeleteAnnouncement
@@ -36,12 +37,12 @@ namespace UniCore.Application.Feature.v1.Announcement.DeleteAnnouncement
                 throw new KeyNotFoundException($"Announcement with ID {request.Id} not found.");
             }
 
-            if (!string.Equals(entity.Status, AnnouncementConstants.Status.Draft, StringComparison.OrdinalIgnoreCase))
+            var status = AnnouncementLifecycle.ComputeStatus(entity.PublishDate, entity.ExpiredDate);
+            if (!string.Equals(status, AnnouncementConstants.Status.Upcoming, StringComparison.OrdinalIgnoreCase))
             {
-                throw new InvalidOperationException("Only DRAFT announcements can be deleted.");
+                throw new InvalidOperationException("Only UPCOMING announcements can be deleted.");
             }
 
-            // Clear child rows first (FK has no cascade).
             await _announcementStudentRepository.ReplaceRecipientsAsync(entity.Id, Array.Empty<string>(), cancellationToken);
             await _announcementRepository.DeleteAsync(entity, cancellationToken);
 

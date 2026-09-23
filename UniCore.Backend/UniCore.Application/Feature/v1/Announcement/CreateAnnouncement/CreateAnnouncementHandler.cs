@@ -5,6 +5,7 @@ using UniCore.Application.Contract.Repository.Enitity.v1;
 using UniCore.Application.Contract.RequestHandlerHub;
 using UniCore.Application.Contract.Service.v1;
 using UniCore.Application.DTO.Entity;
+using UniCore.Application.Feature.v1.Announcement;
 using UniCore.Helper.Constant;
 
 namespace UniCore.Application.Feature.v1.Announcement.CreateAnnouncement
@@ -12,21 +13,21 @@ namespace UniCore.Application.Feature.v1.Announcement.CreateAnnouncement
     public class CreateAnnouncementHandler : IRequestHandler<CreateAnnouncementRequestDTO, CreateAnnouncementResponseDTO>
     {
         private readonly IAnnouncementRepository _announcementRepository;
-        private readonly IAnnouncementStudentRepository _announcementStudentRepository;
         private readonly IAnnouncementAudienceService _audienceService;
+        private readonly IAnnouncementDeliveryService _deliveryService;
         private readonly IMapper _mapper;
         private readonly IValidator<CreateAnnouncementRequestDTO> _validator;
 
         public CreateAnnouncementHandler(
             IAnnouncementRepository announcementRepository,
-            IAnnouncementStudentRepository announcementStudentRepository,
             IAnnouncementAudienceService audienceService,
+            IAnnouncementDeliveryService deliveryService,
             IMapper mapper,
             IValidator<CreateAnnouncementRequestDTO> validator)
         {
             _announcementRepository = announcementRepository;
-            _announcementStudentRepository = announcementStudentRepository;
             _audienceService = audienceService;
+            _deliveryService = deliveryService;
             _mapper = mapper;
             _validator = validator;
         }
@@ -39,15 +40,24 @@ namespace UniCore.Application.Feature.v1.Announcement.CreateAnnouncement
                 throw new ValidationException(results.Errors);
             }
 
+            var scopeType = request.ScopeType.Trim().ToUpperInvariant();
+            var type = request.Type.Trim().ToUpperInvariant();
+
+            // PUBLIC announcements are always NORMAL (no read-tracking / email).
+            if (scopeType == AnnouncementConstants.Scope.Public)
+            {
+                type = AnnouncementConstants.Type.Normal;
+            }
+
             await _audienceService.ValidateScopeAsync(
-                request.ScopeType,
+                scopeType,
                 request.ScopeValue,
                 request.TargetStudentIds,
                 cancellationToken);
 
-            var scopeType = request.ScopeType.Trim().ToUpperInvariant();
-            var scopeValue = AnnouncementScopeHelper.NormalizeScopeValue(scopeType, request.ScopeValue);
+            var scopeValue = AnnouncementLifecycle.NormalizeScopeValue(scopeType, request.ScopeValue);
             var now = DateTime.UtcNow;
+            var status = AnnouncementLifecycle.ComputeStatus(request.PublishDate, request.ExpiredDate, now);
 
             var entity = new UniCore.Application.Entity.Announcement
             {
@@ -55,8 +65,8 @@ namespace UniCore.Application.Feature.v1.Announcement.CreateAnnouncement
                 Title = request.Title.Trim(),
                 Description = request.Description,
                 Content = request.Content,
-                Type = request.Type.Trim().ToUpperInvariant(),
-                Status = AnnouncementConstants.Status.Draft,
+                Type = type,
+                Status = status,
                 ScopeType = scopeType,
                 ScopeValue = scopeValue,
                 RequireAcknowledgement = request.RequireAcknowledgement,
@@ -68,11 +78,12 @@ namespace UniCore.Application.Feature.v1.Announcement.CreateAnnouncement
 
             await _announcementRepository.AddAsync(entity, cancellationToken);
 
-            if (scopeType == AnnouncementConstants.Scope.Student)
-            {
-                var studentIds = AnnouncementScopeHelper.NormalizeStudentIds(request.TargetStudentIds);
-                await _announcementStudentRepository.ReplaceRecipientsAsync(entity.Id, studentIds, cancellationToken);
-            }
+            await _deliveryService.ApplyAudienceSideEffectsAsync(
+                entity,
+                request.TargetStudentIds,
+                cancellationToken);
+
+            await _announcementRepository.UpdateAsync(entity, cancellationToken);
 
             var created = await _announcementRepository.GetByIdWithDetailsAsync(entity.Id, cancellationToken);
 

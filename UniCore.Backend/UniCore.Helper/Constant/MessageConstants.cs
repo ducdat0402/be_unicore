@@ -69,12 +69,57 @@ namespace UniCore.Helper.Constant
             public const string UpdateSuccess = "Announcement.UpdateSuccess";
             public const string DeleteSuccess = "Announcement.DeleteSuccess";
             public const string PreviewSuccess = "Announcement.PreviewSuccess";
-            public const string PublishSuccess = "Announcement.PublishSuccess";
-            public const string CancelSuccess = "Announcement.CancelSuccess";
             public const string DeliveryReportSuccess = "Announcement.DeliveryReportSuccess";
             public const string GetPublicListSuccess = "Announcement.GetPublicListSuccess";
             public const string GetPublicByIdSuccess = "Announcement.GetPublicByIdSuccess";
             public const string NotFound = "Announcement.NotFound";
+        }
+
+        public static class Identity
+        {
+            public const string ScanCccdSuccess = "Identity.ScanCccdSuccess";
+            public const string GetCccdSuccess = "Identity.GetCccdSuccess";
+            public const string ImageRequired = "Identity.ImageRequired";
+            public const string ImageQualityRejected = "Identity.ImageQualityRejected";
+            public const string IdNumberAlreadyUsed = "Identity.IdNumberAlreadyUsed";
+        }
+
+        public static class FaceAuth
+        {
+            // Success messages
+            public const string EnrollSuccess = "FaceAuth.EnrollSuccess";
+            public const string SetPinSuccess = "FaceAuth.SetPinSuccess";
+            public const string GetStatusSuccess = "FaceAuth.GetStatusSuccess";
+            public const string LoginSuccess = "FaceAuth.LoginSuccess";
+            public const string VerifyPinSuccess = "FaceAuth.VerifyPinSuccess";
+
+            // Error messages
+            public const string EnrollFailed = "FaceAuth.EnrollFailed";
+            public const string SetPinFailed = "FaceAuth.SetPinFailed";
+            public const string LoginFailed = "FaceAuth.LoginFailed";
+            public const string VerifyPinFailed = "FaceAuth.VerifyPinFailed";
+
+            // Validation messages
+            public const string UserIdRequired = "FaceAuth.UserIdRequired";
+            public const string ImagesRequired = "FaceAuth.ImagesRequired";
+            public const string InvalidImageCount = "FaceAuth.InvalidImageCount";
+            public const string InvalidImageType = "FaceAuth.InvalidImageType";
+            public const string ImageTooLarge = "FaceAuth.ImageTooLarge";
+            public const string PinRequired = "FaceAuth.PinRequired";
+            public const string PinInvalidLength = "FaceAuth.PinInvalidLength";
+            public const string PinMustBeDigits = "FaceAuth.PinMustBeDigits";
+            public const string ConfirmPinRequired = "FaceAuth.ConfirmPinRequired";
+            public const string PinMismatch = "FaceAuth.PinMismatch";
+            public const string InvalidPin = "FaceAuth.InvalidPin";
+            public const string PinLocked = "FaceAuth.PinLocked";
+
+            // Status messages
+            public const string NotEnrolled = "FaceAuth.NotEnrolled";
+            public const string AlreadyEnrolled = "FaceAuth.AlreadyEnrolled";
+            public const string AccountSuspended = "FaceAuth.AccountSuspended";
+            public const string NoMatch = "FaceAuth.NoMatch";
+            public const string ChallengeExpired = "FaceAuth.ChallengeExpired";
+            public const string InvalidChallenge = "FaceAuth.InvalidChallenge";
         }
 
         public static class System

@@ -74,6 +74,7 @@
     <Build Include="dbo\Tables\announcements.sql" />
     <Build Include="dbo\Tables\announcement_students.sql" />
     <Build Include="dbo\Tables\announcement_email_logs.sql" />
+    <Build Include="dbo\Tables\announcement_email_whitelists.sql" />
     <Build Include="dbo\Tables\users.sql" />
     <Build Include="dbo\Tables\user_profiles.sql" />
     <Build Include="dbo\Tables\user_person_ids.sql" />
@@ -101,6 +102,8 @@
     <Build Include="dbo\Triggers\trg_roles_auto_code.sql" />
     <Build Include="dbo\Triggers\trg_permissions_auto_code.sql" />
     <Build Include="dbo\Tables\user_roles.sql" />
+    <Build Include="dbo\Tables\user_face_profiles.sql" />
+    <Build Include="dbo\Tables\face_auth_logs.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="dbo\SeedData\01_SeedRoles.sql" />
@@ -117,6 +120,9 @@
     <None Include="dbo\SeedData\14_SeedAnnouncementStudents.sql" />
     <None Include="dbo\SeedData\15_AnnouncementPhase1_Manual.sql" />
     <None Include="dbo\SeedData\16_MigrateAnnouncementScopes.sql" />
+    <None Include="dbo\SeedData\17_RedesignAnnouncementLifecycle.sql" />
+    <None Include="dbo\SeedData\18_CreateUserFaceProfiles.sql" />
+    <None Include="dbo\SeedData\19_CreateFaceAuthLogs.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="dbo\Script.PostDeployment.sql" />

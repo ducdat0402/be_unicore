@@ -11,5 +11,17 @@ namespace UniCore.Infrastructure.Repository.V1
         public AnnouncementEmailLogRepository(UniCoreDbContext dbContext, IMapper mapper) : base(dbContext, mapper)
         {
         }
+
+        public async Task AddRangeLogsAsync(IEnumerable<AnnouncementEmailLog> logs, CancellationToken cancellationToken = default)
+        {
+            var list = logs.ToList();
+            if (list.Count == 0)
+            {
+                return;
+            }
+
+            await _dbSet.AddRangeAsync(list, cancellationToken);
+            await _UniCoreDbContext.SaveChangesAsync(cancellationToken);
+        }
     }
 }

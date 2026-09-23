@@ -54,6 +54,20 @@ namespace UniCore.Infrastructure.Repository.V1
                 .ToListAsync(cancellationToken);
         }
 
+        public async Task<List<string>> GetActiveVerifiedStudentIdsAsync(CancellationToken cancellationToken = default)
+        {
+            return await _dbSet
+                .AsNoTracking()
+                .Where(u =>
+                    u.IsActive &&
+                    u.UserRoles.Any(ur => ur.Role != null && ur.Role.Name == "Student" && ur.Role.IsActive) &&
+                    u.UserPersonId != null &&
+                    u.UserPersonId.IsActive &&
+                    u.UserPersonId.VerificationStatus == "VERIFIED")
+                .Select(u => u.Id)
+                .ToListAsync(cancellationToken);
+        }
+
         public async Task<List<string>> GetActiveStudentIdsByIdsAsync(IEnumerable<string> studentIds, CancellationToken cancellationToken = default)
         {
             var ids = studentIds
@@ -74,6 +88,33 @@ namespace UniCore.Infrastructure.Repository.V1
                     u.UserRoles.Any(ur => ur.Role != null && ur.Role.Name == "Student" && ur.Role.IsActive))
                 .Select(u => u.Id)
                 .ToListAsync(cancellationToken);
+        }
+
+        public async Task<List<(string StudentId, string Email)>> GetActiveStudentEmailsByIdsAsync(
+            IEnumerable<string> studentIds,
+            CancellationToken cancellationToken = default)
+        {
+            var ids = studentIds
+                .Where(id => !string.IsNullOrWhiteSpace(id))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (ids.Count == 0)
+            {
+                return new List<(string, string)>();
+            }
+
+            var rows = await _dbSet
+                .AsNoTracking()
+                .Where(u =>
+                    ids.Contains(u.Id) &&
+                    u.IsActive &&
+                    !string.IsNullOrWhiteSpace(u.Email) &&
+                    u.UserRoles.Any(ur => ur.Role != null && ur.Role.Name == "Student" && ur.Role.IsActive))
+                .Select(u => new { u.Id, u.Email })
+                .ToListAsync(cancellationToken);
+
+            return rows.Select(r => (r.Id, r.Email)).ToList();
         }
     }
 }

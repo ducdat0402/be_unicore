@@ -5,14 +5,12 @@ using System.Security.Claims;
 using UniCore.API.Controllers;
 using UniCore.Application.Contract.Service.v1;
 using UniCore.Application.DTO;
-using UniCore.Application.Feature.v1.Announcement.CancelAnnouncement;
 using UniCore.Application.Feature.v1.Announcement.CreateAnnouncement;
 using UniCore.Application.Feature.v1.Announcement.DeleteAnnouncement;
 using UniCore.Application.Feature.v1.Announcement.GetAllAnnouncement;
 using UniCore.Application.Feature.v1.Announcement.GetAnnouncementById;
 using UniCore.Application.Feature.v1.Announcement.GetDeliveryReport;
 using UniCore.Application.Feature.v1.Announcement.PreviewRecipients;
-using UniCore.Application.Feature.v1.Announcement.PublishAnnouncement;
 using UniCore.Application.Feature.v1.Announcement.UpdateAnnouncement;
 using UniCore.Helper.Constant;
 using UniCore.Helper.Localization;
@@ -102,34 +100,6 @@ namespace UniCore.API.Controllers.v1
         {
             var result = await _announcementService.PreviewRecipientsAsync(request, cancellationToken);
             return OkResponse(result, _localizer.GetString(MessageConstants.Announcement.PreviewSuccess));
-        }
-
-        [HttpPost("{id}/publish")]
-        [ProducesResponseType(typeof(BaseAPIResponse<PublishAnnouncementResponseDTO>), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<BaseAPIResponse<PublishAnnouncementResponseDTO>>> Publish(
-            string id,
-            CancellationToken cancellationToken)
-        {
-            var result = await _announcementService.PublishAsync(
-                new PublishAnnouncementRequestDTO { Id = id, ActorUserId = GetActorUserId() },
-                cancellationToken);
-            return OkResponse(result, _localizer.GetString(MessageConstants.Announcement.PublishSuccess));
-        }
-
-        [HttpPost("{id}/cancel")]
-        [ProducesResponseType(typeof(BaseAPIResponse<CancelAnnouncementResponseDTO>), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<BaseAPIResponse<CancelAnnouncementResponseDTO>>> Cancel(
-            string id,
-            CancellationToken cancellationToken)
-        {
-            var result = await _announcementService.CancelAsync(
-                new CancelAnnouncementRequestDTO { Id = id, ActorUserId = GetActorUserId() },
-                cancellationToken);
-            return OkResponse(result, _localizer.GetString(MessageConstants.Announcement.CancelSuccess));
         }
 
         [HttpGet("{id}/delivery-report")]

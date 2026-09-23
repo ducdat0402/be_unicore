@@ -11,11 +11,11 @@ namespace UniCore.Application.Feature.v1.Announcement.CreateAnnouncement
         public string Type { get; set; } = string.Empty;
         public string ScopeType { get; set; } = string.Empty;
         public string? ScopeValue { get; set; }
-        /// <summary>Required when ScopeType = STUDENT. Stored in announcement_students.</summary>
+        /// <summary>Required when ScopeType = SPECIFIC_STUDENTS.</summary>
         public List<string> TargetStudentIds { get; set; } = new();
         public bool RequireAcknowledgement { get; set; }
-        public DateTime? PublishDate { get; set; }
-        public DateTime? ExpiredDate { get; set; }
+        public DateTime PublishDate { get; set; }
+        public DateTime ExpiredDate { get; set; }
 
         [JsonIgnore]
         public string? ActorUserId { get; set; }

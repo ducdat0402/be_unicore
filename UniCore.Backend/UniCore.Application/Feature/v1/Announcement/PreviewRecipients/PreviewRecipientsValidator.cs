@@ -11,7 +11,7 @@ namespace UniCore.Application.Feature.v1.Announcement.PreviewRecipients
                 .NotEmpty()
                 .WithMessage("ScopeType is required.")
                 .Must(s => AnnouncementConstants.Scope.Supported.Contains(s))
-                .WithMessage("ScopeType must be PUBLIC, DEPARTMENT, CLASS, or STUDENT.");
+                .WithMessage("ScopeType must be PUBLIC, STUDENTS, DEPARTMENT, CLASS, COURSE, or SPECIFIC_STUDENTS.");
         }
     }
 }

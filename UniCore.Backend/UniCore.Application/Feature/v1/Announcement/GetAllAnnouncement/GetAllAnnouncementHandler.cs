@@ -2,6 +2,8 @@ using System.Linq.Expressions;
 using UniCore.Application.Contract.Repository.Enitity.v1;
 using UniCore.Application.Contract.RequestHandlerHub;
 using UniCore.Application.DTO.Entity;
+using UniCore.Application.Feature.v1.Announcement;
+using UniCore.Helper.Constant;
 
 namespace UniCore.Application.Feature.v1.Announcement.GetAllAnnouncement
 {
@@ -23,6 +25,11 @@ namespace UniCore.Application.Feature.v1.Announcement.GetAllAnnouncement
                 filter,
                 cancellationToken);
 
+            foreach (var item in pagedResult.Items)
+            {
+                item.Status = AnnouncementLifecycle.ComputeStatus(item.PublishDate, item.ExpiredDate);
+            }
+
             return new GetAllAnnouncementResponseDTO
             {
                 Items = pagedResult.Items,
@@ -39,19 +46,36 @@ namespace UniCore.Application.Feature.v1.Announcement.GetAllAnnouncement
         {
             var hasSearch = !string.IsNullOrWhiteSpace(request.SearchTerm);
             var hasStatus = !string.IsNullOrWhiteSpace(request.Status);
+            var now = DateTime.UtcNow;
+            var status = hasStatus ? request.Status!.Trim().ToUpperInvariant() : null;
 
             if (!hasSearch && !hasStatus)
             {
                 return null;
             }
 
-            if (hasSearch && hasStatus)
+            if (hasSearch && status == AnnouncementConstants.Status.Upcoming)
             {
                 var term = request.SearchTerm!;
-                var status = request.Status!;
                 return a =>
                     ((a.Title != null && a.Title.Contains(term)) || (a.Code != null && a.Code.Contains(term)))
-                    && a.Status == status;
+                    && now < a.PublishDate;
+            }
+
+            if (hasSearch && status == AnnouncementConstants.Status.Active)
+            {
+                var term = request.SearchTerm!;
+                return a =>
+                    ((a.Title != null && a.Title.Contains(term)) || (a.Code != null && a.Code.Contains(term)))
+                    && now >= a.PublishDate && now < a.ExpiredDate;
+            }
+
+            if (hasSearch && status == AnnouncementConstants.Status.Expired)
+            {
+                var term = request.SearchTerm!;
+                return a =>
+                    ((a.Title != null && a.Title.Contains(term)) || (a.Code != null && a.Code.Contains(term)))
+                    && now >= a.ExpiredDate;
             }
 
             if (hasSearch)
@@ -60,8 +84,22 @@ namespace UniCore.Application.Feature.v1.Announcement.GetAllAnnouncement
                 return a => (a.Title != null && a.Title.Contains(term)) || (a.Code != null && a.Code.Contains(term));
             }
 
-            var statusOnly = request.Status!;
-            return a => a.Status == statusOnly;
+            if (status == AnnouncementConstants.Status.Upcoming)
+            {
+                return a => now < a.PublishDate;
+            }
+
+            if (status == AnnouncementConstants.Status.Active)
+            {
+                return a => now >= a.PublishDate && now < a.ExpiredDate;
+            }
+
+            if (status == AnnouncementConstants.Status.Expired)
+            {
+                return a => now >= a.ExpiredDate;
+            }
+
+            return null;
         }
     }
 }

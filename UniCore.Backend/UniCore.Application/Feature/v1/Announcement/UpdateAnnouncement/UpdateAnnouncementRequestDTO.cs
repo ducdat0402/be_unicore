@@ -15,8 +15,8 @@ namespace UniCore.Application.Feature.v1.Announcement.UpdateAnnouncement
         public string? ScopeValue { get; set; }
         public List<string> TargetStudentIds { get; set; } = new();
         public bool RequireAcknowledgement { get; set; }
-        public DateTime? PublishDate { get; set; }
-        public DateTime? ExpiredDate { get; set; }
+        public DateTime PublishDate { get; set; }
+        public DateTime ExpiredDate { get; set; }
 
         [JsonIgnore]
         public string? ActorUserId { get; set; }
