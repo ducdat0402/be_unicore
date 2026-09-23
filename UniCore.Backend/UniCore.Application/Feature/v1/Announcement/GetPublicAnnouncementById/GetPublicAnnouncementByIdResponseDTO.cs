@@ -1,9 +1,9 @@
-using UniCore.Application.DTO.Entity;
+using UniCore.Application.Feature.v1.Announcement.GetAllAnnouncement;
 
 namespace UniCore.Application.Feature.v1.Announcement.GetPublicAnnouncementById
 {
     public class GetPublicAnnouncementByIdResponseDTO
     {
-        public AnnouncementDTO? Announcement { get; set; }
+        public AdminAnnouncementItemDTO? Announcement { get; set; }
     }
 }

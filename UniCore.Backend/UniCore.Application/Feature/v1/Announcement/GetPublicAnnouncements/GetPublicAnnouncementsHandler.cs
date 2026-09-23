@@ -1,30 +1,31 @@
-using MapsterMapper;
 using UniCore.Application.Contract.Repository.Enitity.v1;
 using UniCore.Application.Contract.RequestHandlerHub;
-using UniCore.Application.DTO.Entity;
+using UniCore.Application.Feature.v1.Announcement;
+using UniCore.Application.Feature.v1.Announcement.GetAllAnnouncement;
 
 namespace UniCore.Application.Feature.v1.Announcement.GetPublicAnnouncements
 {
     public class GetPublicAnnouncementsHandler : IRequestHandler<GetPublicAnnouncementsRequestDTO, GetPublicAnnouncementsResponseDTO>
     {
         private readonly IAnnouncementRepository _announcementRepository;
-        private readonly IMapper _mapper;
 
-        public GetPublicAnnouncementsHandler(IAnnouncementRepository announcementRepository, IMapper mapper)
+        public GetPublicAnnouncementsHandler(IAnnouncementRepository announcementRepository)
         {
             _announcementRepository = announcementRepository;
-            _mapper = mapper;
         }
 
         public async Task<GetPublicAnnouncementsResponseDTO> HandleAsync(
             GetPublicAnnouncementsRequestDTO request,
             CancellationToken cancellationToken)
         {
+            var utcNow = DateTime.UtcNow;
             var items = await _announcementRepository.GetPublishedPublicAsync(cancellationToken);
 
             return new GetPublicAnnouncementsResponseDTO
             {
-                Items = _mapper.Map<List<AnnouncementDTO>>(items)
+                Items = items
+                    .Select(a => AdminAnnouncementMapping.ToAdminItem(a, utcNow, includeContent: false))
+                    .ToList()
             };
         }
     }

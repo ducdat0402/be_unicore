@@ -25,20 +25,23 @@ namespace UniCore.Application.Feature.v1.Announcement.GetAllAnnouncement
                 filter,
                 cancellationToken);
 
-            foreach (var item in pagedResult.Items)
-            {
-                item.Status = AnnouncementLifecycle.ComputeStatus(item.PublishDate, item.ExpiredDate);
-            }
+            var utcNow = DateTime.UtcNow;
+            var data = pagedResult.Items
+                .Select(item => AdminAnnouncementMapping.ToAdminItem(item, utcNow, includeContent: false))
+                .ToList();
 
             return new GetAllAnnouncementResponseDTO
             {
-                Items = pagedResult.Items,
-                PageNumber = pagedResult.PageNumber,
-                PageSize = pagedResult.PageSize,
-                TotalRecords = pagedResult.TotalRecords,
-                TotalPages = pagedResult.TotalPages,
-                HasNextPage = pagedResult.HasNextPage,
-                HasPreviousPage = pagedResult.HasPreviousPage
+                Data = data,
+                Meta = new AnnouncementPaginationMetaDTO
+                {
+                    Page = pagedResult.PageNumber,
+                    PageSize = pagedResult.PageSize,
+                    TotalItems = pagedResult.TotalRecords,
+                    TotalPages = pagedResult.TotalPages,
+                    HasNextPage = pagedResult.HasNextPage,
+                    HasPreviousPage = pagedResult.HasPreviousPage
+                }
             };
         }
 

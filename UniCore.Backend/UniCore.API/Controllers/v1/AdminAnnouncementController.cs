@@ -17,18 +17,25 @@ using UniCore.Helper.Localization;
 
 namespace UniCore.API.Controllers.v1
 {
+    /// <summary>
+    /// Admin-only announcement management (CRUD, preview, delivery report).
+    /// </summary>
     [ApiVersion("1.0")]
     [Authorize(Roles = "Admin")]
-    [Route("api/v{version:apiVersion}/announcements")]
-    public class AnnouncementController : BaseController
+    [Route("api/v{version:apiVersion}/admin/announcements")]
+    public class AdminAnnouncementController : BaseController
     {
         private readonly IAnnouncementService _announcementService;
 
-        public AnnouncementController(IAnnouncementService announcementService, IJsonStringLocalizer localizer) : base(localizer)
+        public AdminAnnouncementController(IAnnouncementService announcementService, IJsonStringLocalizer localizer)
+            : base(localizer)
         {
             _announcementService = announcementService;
         }
 
+        /// <summary>
+        /// Get all announcements (admin view with all statuses).
+        /// </summary>
         [HttpGet]
         [ProducesResponseType(typeof(BaseAPIResponse<GetAllAnnouncementResponseDTO>), StatusCodes.Status200OK)]
         public async Task<ActionResult<BaseAPIResponse<GetAllAnnouncementResponseDTO>>> GetAll(
@@ -40,10 +47,15 @@ namespace UniCore.API.Controllers.v1
             return OkResponse(result, message);
         }
 
+        /// <summary>
+        /// Get announcement by ID (admin view with full details).
+        /// </summary>
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(BaseAPIResponse<GetAnnouncementByIdResponseDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<BaseAPIResponse<GetAnnouncementByIdResponseDTO>>> GetById(string id, CancellationToken cancellationToken)
+        public async Task<ActionResult<BaseAPIResponse<GetAnnouncementByIdResponseDTO>>> GetById(
+            string id,
+            CancellationToken cancellationToken)
         {
             var result = await _announcementService.GetByIdAsync(id, cancellationToken);
             if (result.Announcement == null)
@@ -55,6 +67,9 @@ namespace UniCore.API.Controllers.v1
             return OkResponse(result, _localizer.GetString(MessageConstants.Announcement.GetByIdSuccess));
         }
 
+        /// <summary>
+        /// Create a new announcement.
+        /// </summary>
         [HttpPost]
         [ProducesResponseType(typeof(BaseAPIResponse<CreateAnnouncementResponseDTO>), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -67,6 +82,9 @@ namespace UniCore.API.Controllers.v1
             return CreatedResponse(result, _localizer.GetString(MessageConstants.Announcement.CreateSuccess));
         }
 
+        /// <summary>
+        /// Update an existing announcement (only UPCOMING status).
+        /// </summary>
         [HttpPut("{id}")]
         [ProducesResponseType(typeof(BaseAPIResponse<UpdateAnnouncementResponseDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -82,15 +100,23 @@ namespace UniCore.API.Controllers.v1
             return OkResponse(result, _localizer.GetString(MessageConstants.Announcement.UpdateSuccess));
         }
 
+        /// <summary>
+        /// Delete an announcement (only UPCOMING status).
+        /// </summary>
         [HttpDelete("{id}")]
         [ProducesResponseType(typeof(BaseAPIResponse<DeleteAnnouncementResponseDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<BaseAPIResponse<DeleteAnnouncementResponseDTO>>> Delete(string id, CancellationToken cancellationToken)
+        public async Task<ActionResult<BaseAPIResponse<DeleteAnnouncementResponseDTO>>> Delete(
+            string id,
+            CancellationToken cancellationToken)
         {
             var result = await _announcementService.DeleteAsync(id, cancellationToken);
             return OkResponse(result, _localizer.GetString(MessageConstants.Announcement.DeleteSuccess));
         }
 
+        /// <summary>
+        /// Preview recipients count before creating/updating announcement.
+        /// </summary>
         [HttpPost("preview-recipients")]
         [ProducesResponseType(typeof(BaseAPIResponse<PreviewRecipientsResponseDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -102,6 +128,9 @@ namespace UniCore.API.Controllers.v1
             return OkResponse(result, _localizer.GetString(MessageConstants.Announcement.PreviewSuccess));
         }
 
+        /// <summary>
+        /// Get delivery report for an announcement (read/acknowledged stats).
+        /// </summary>
         [HttpGet("{id}/delivery-report")]
         [ProducesResponseType(typeof(BaseAPIResponse<GetDeliveryReportResponseDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

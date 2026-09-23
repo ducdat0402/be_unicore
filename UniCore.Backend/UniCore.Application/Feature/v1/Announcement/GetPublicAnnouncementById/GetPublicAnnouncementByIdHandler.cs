@@ -1,9 +1,8 @@
 using FluentValidation;
 using FluentValidation.Results;
-using MapsterMapper;
 using UniCore.Application.Contract.Repository.Enitity.v1;
 using UniCore.Application.Contract.RequestHandlerHub;
-using UniCore.Application.DTO.Entity;
+using UniCore.Application.Feature.v1.Announcement;
 
 namespace UniCore.Application.Feature.v1.Announcement.GetPublicAnnouncementById
 {
@@ -11,16 +10,13 @@ namespace UniCore.Application.Feature.v1.Announcement.GetPublicAnnouncementById
         : IRequestHandler<GetPublicAnnouncementByIdRequestDTO, GetPublicAnnouncementByIdResponseDTO>
     {
         private readonly IAnnouncementRepository _announcementRepository;
-        private readonly IMapper _mapper;
         private readonly IValidator<GetPublicAnnouncementByIdRequestDTO> _validator;
 
         public GetPublicAnnouncementByIdHandler(
             IAnnouncementRepository announcementRepository,
-            IMapper mapper,
             IValidator<GetPublicAnnouncementByIdRequestDTO> validator)
         {
             _announcementRepository = announcementRepository;
-            _mapper = mapper;
             _validator = validator;
         }
 
@@ -36,9 +32,13 @@ namespace UniCore.Application.Feature.v1.Announcement.GetPublicAnnouncementById
 
             var entity = await _announcementRepository.GetPublishedPublicByIdAsync(request.Id, cancellationToken);
 
+            var utcNow = DateTime.UtcNow;
+
             return new GetPublicAnnouncementByIdResponseDTO
             {
-                Announcement = entity == null ? null : _mapper.Map<AnnouncementDTO>(entity)
+                Announcement = entity == null
+                    ? null
+                    : AdminAnnouncementMapping.ToAdminItem(entity, utcNow, includeContent: true)
             };
         }
     }
