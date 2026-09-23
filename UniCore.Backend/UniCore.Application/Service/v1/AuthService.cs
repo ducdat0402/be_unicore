@@ -1,8 +1,15 @@
 using UniCore.Application.Contract.Service.v1;
+using UniCore.Application.Feature.v1.Auth.ChangePassword;
 using UniCore.Application.Feature.v1.Auth.ForgotPassword;
+using UniCore.Application.Feature.v1.Auth.GoogleAuth.GoogleLogin;
+using UniCore.Application.Feature.v1.Auth.GoogleAuth.SimulateGoogleToken;
 using UniCore.Application.Feature.v1.Auth.Login;
 using UniCore.Application.Feature.v1.Auth.Logout;
 using UniCore.Application.Feature.v1.Auth.Me;
+using UniCore.Application.Feature.v1.Auth.Mfa.DisableMfa;
+using UniCore.Application.Feature.v1.Auth.Mfa.EnableMfa;
+using UniCore.Application.Feature.v1.Auth.Mfa.SetupMfa;
+using UniCore.Application.Feature.v1.Auth.Mfa.VerifyMfa;
 using UniCore.Application.Feature.v1.Auth.RefreshToken;
 using UniCore.Application.Feature.v1.Auth.Register;
 using UniCore.Application.Feature.v1.Auth.VerifyOtp;
@@ -20,6 +27,13 @@ namespace UniCore.Application.Service.v1
         private readonly ForgotPasswordHandler _forgotPasswordHandler;
         private readonly ResetPasswordHandler _resetPasswordHandler;
         private readonly GetMeQueryHandler _getMeQueryHandler;
+        private readonly ChangePasswordHandler _changePasswordHandler;
+        private readonly SetupMfaHandler _setupMfaHandler;
+        private readonly EnableMfaHandler _enableMfaHandler;
+        private readonly DisableMfaHandler _disableMfaHandler;
+        private readonly VerifyMfaHandler _verifyMfaHandler;
+        private readonly SimulateGoogleTokenHandler _simulateGoogleTokenHandler;
+        private readonly GoogleLoginHandler _googleLoginHandler;
 
         public AuthService(
             LoginHandler loginHandler,
@@ -30,7 +44,14 @@ namespace UniCore.Application.Service.v1
             VerifyOtpHandler verifyOtpHandler,
             ForgotPasswordHandler forgotPasswordHandler,
             ResetPasswordHandler resetPasswordHandler,
-            GetMeQueryHandler getMeQueryHandler)
+            GetMeQueryHandler getMeQueryHandler,
+            ChangePasswordHandler changePasswordHandler,
+            SetupMfaHandler setupMfaHandler,
+            EnableMfaHandler enableMfaHandler,
+            DisableMfaHandler disableMfaHandler,
+            VerifyMfaHandler verifyMfaHandler,
+            SimulateGoogleTokenHandler simulateGoogleTokenHandler,
+            GoogleLoginHandler googleLoginHandler)
         {
             _loginHandler = loginHandler;
             _refreshTokenHandler = refreshTokenHandler;
@@ -41,6 +62,13 @@ namespace UniCore.Application.Service.v1
             _forgotPasswordHandler = forgotPasswordHandler;
             _resetPasswordHandler = resetPasswordHandler;
             _getMeQueryHandler = getMeQueryHandler;
+            _changePasswordHandler = changePasswordHandler;
+            _setupMfaHandler = setupMfaHandler;
+            _enableMfaHandler = enableMfaHandler;
+            _disableMfaHandler = disableMfaHandler;
+            _verifyMfaHandler = verifyMfaHandler;
+            _simulateGoogleTokenHandler = simulateGoogleTokenHandler;
+            _googleLoginHandler = googleLoginHandler;
         }
 
         public Task<LoginResponseDTO> LoginAsync(LoginRequestDTO request, CancellationToken cancellationToken = default)
@@ -69,5 +97,26 @@ namespace UniCore.Application.Service.v1
 
         public Task<GetMeResponseDTO?> GetMeAsync(string userId, CancellationToken cancellationToken = default)
             => _getMeQueryHandler.HandleAsync(new GetMeQuery(userId), cancellationToken);
+
+        public Task<ChangePasswordResponseDTO> ChangePasswordAsync(ChangePasswordRequestDTO request, CancellationToken cancellationToken = default)
+            => _changePasswordHandler.HandleAsync(request, cancellationToken);
+
+        public Task<SetupMfaResponseDTO> SetupMfaAsync(SetupMfaRequestDTO request, CancellationToken cancellationToken = default)
+            => _setupMfaHandler.HandleAsync(request, cancellationToken);
+
+        public Task<EnableMfaResponseDTO> EnableMfaAsync(EnableMfaRequestDTO request, CancellationToken cancellationToken = default)
+            => _enableMfaHandler.HandleAsync(request, cancellationToken);
+
+        public Task<DisableMfaResponseDTO> DisableMfaAsync(DisableMfaRequestDTO request, CancellationToken cancellationToken = default)
+            => _disableMfaHandler.HandleAsync(request, cancellationToken);
+
+        public Task<VerifyMfaResponseDTO> VerifyMfaAsync(VerifyMfaRequestDTO request, CancellationToken cancellationToken = default)
+            => _verifyMfaHandler.HandleAsync(request, cancellationToken);
+
+        public Task<SimulateGoogleTokenResponseDTO> SimulateGoogleTokenAsync(SimulateGoogleTokenRequestDTO request, CancellationToken cancellationToken = default)
+            => _simulateGoogleTokenHandler.HandleAsync(request, cancellationToken);
+
+        public Task<LoginResponseDTO> GoogleLoginAsync(GoogleLoginRequestDTO request, CancellationToken cancellationToken = default)
+            => _googleLoginHandler.HandleAsync(request, cancellationToken);
     }
 }

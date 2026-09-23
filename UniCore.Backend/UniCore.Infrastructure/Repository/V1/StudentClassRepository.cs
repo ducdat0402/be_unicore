@@ -13,6 +13,44 @@ namespace UniCore.Infrastructure.Repository.V1
         {
         }
 
+        public async Task<string?> GetStudentClassIdAsync(
+            string classId, 
+            string studentId, 
+            CancellationToken ct)
+        {
+            var result = await _dbSet.Where(x => x.ClassId.Equals(classId) && x.StudentId.Equals(studentId))
+                        .Select(x => x.Id)
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(ct);
+            return result;
+        }
+
+        public async Task<IEnumerable<string>?> GetUserIdsByStudentClassIdAsync(
+            string classId, 
+            string studentId,
+            CancellationToken ct)
+        {
+            var results = await _dbSet
+                                .Where(x => x.ClassId.Equals(classId) && !x.StudentId.Equals(studentId))
+                                .Select(x => x.StudentId)
+                                .Take(30)
+                                .AsNoTracking()
+                                .ToListAsync(ct);
+            
+            return results;
+        }
+
+        public async Task<IEnumerable<string>?> GetClassIdsAsync(string studentId, CancellationToken ct)
+        {
+            var results = await _dbSet
+                                .Where(x => x.StudentId.Equals(studentId))
+                                .Select(x => x.ClassId)
+                                .Take(30)
+                                .AsNoTracking()
+                                .ToListAsync(ct);
+            return results;
+        }
+
         public async Task<List<string>> GetActiveStudentIdsByClassIdAsync(string classId, CancellationToken cancellationToken = default)
         {
             return await _dbSet

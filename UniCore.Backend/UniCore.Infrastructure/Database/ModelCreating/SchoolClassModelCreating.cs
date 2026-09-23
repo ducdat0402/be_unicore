@@ -39,7 +39,15 @@ namespace UniCore.Infrastructure.Database.ModelCreating
                 entity.Property(e => e.CreatedBy).HasColumnName("created_by").HasMaxLength(50);
                 entity.Property(e => e.UpdatedBy).HasColumnName("updated_by").HasMaxLength(50);
 
-                entity.HasIndex(e => e.Code).IsUnique();
+                entity.HasIndex(e => e.Code)
+                    .IsUnique()
+                    .HasDatabaseName("UQ_classes_code");
+
+                entity.HasIndex(e => e.DepartmentId)
+                    .HasDatabaseName("IX_classes_department_id");
+
+                entity.HasIndex(e => new { e.IsDeleted, e.IsActive })
+                    .HasDatabaseName("IX_classes_active_deleted");
 
                 entity.HasOne(e => e.Department)
                     .WithMany(d => d.Classes)

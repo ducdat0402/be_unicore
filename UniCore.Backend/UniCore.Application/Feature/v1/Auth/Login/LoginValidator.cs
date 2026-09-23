@@ -7,7 +7,8 @@ namespace UniCore.Application.Feature.v1.Auth.Login
         public LoginValidator()
         {
             RuleFor(x => x.Username)
-            .NotEmpty().WithMessage("Username is required");
+            .NotEmpty().WithMessage("Email is required")
+            .EmailAddress().WithMessage("Email is invalid");
 
             RuleFor(x => x.Password)
             .NotEmpty().WithMessage("Password is required")

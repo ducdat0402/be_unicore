@@ -8,3 +8,9 @@ CREATE TABLE [dbo].[user_mfa_backup_codes] (
     PRIMARY KEY CLUSTERED ([id] ASC),
     CONSTRAINT [FK_user_mfa_backup_codes_users] FOREIGN KEY ([user_id]) REFERENCES [dbo].[users] ([id]) ON DELETE CASCADE
 );
+GO
+
+CREATE NONCLUSTERED INDEX [IX_user_mfa_backup_codes_user_id]
+    ON [dbo].[user_mfa_backup_codes] ([user_id] ASC, [is_used] ASC)
+    INCLUDE ([code_hash]);
+GO

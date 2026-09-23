@@ -15,3 +15,8 @@ CREATE TABLE [dbo].[departments] (
     CONSTRAINT [FK_departments_created_by] FOREIGN KEY ([created_by]) REFERENCES [dbo].[users] ([id]),
     CONSTRAINT [FK_departments_updated_by] FOREIGN KEY ([updated_by]) REFERENCES [dbo].[users] ([id])
 );
+GO
+
+CREATE NONCLUSTERED INDEX [IX_departments_active_deleted]
+    ON [dbo].[departments] ([is_deleted] ASC, [is_active] ASC);
+GO

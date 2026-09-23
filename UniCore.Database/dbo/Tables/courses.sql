@@ -17,3 +17,16 @@ CREATE TABLE [dbo].[courses] (
     CONSTRAINT [FK_courses_created_by] FOREIGN KEY ([created_by]) REFERENCES [dbo].[users] ([id]),
     CONSTRAINT [FK_courses_updated_by] FOREIGN KEY ([updated_by]) REFERENCES [dbo].[users] ([id])
 );
+GO
+
+CREATE NONCLUSTERED INDEX [IX_courses_department_id]
+    ON [dbo].[courses] ([department_id] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_courses_type]
+    ON [dbo].[courses] ([type] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_courses_active_deleted]
+    ON [dbo].[courses] ([is_deleted] ASC, [is_active] ASC);
+GO

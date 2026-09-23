@@ -8,7 +8,7 @@ namespace UniCore.Application.Feature.v1.Announcement
     public static class AdminAnnouncementMapping
     {
         public static AdminAnnouncementItemDTO ToAdminItem(
-            Announcement entity,
+            Application.Entity.Announcement entity,
             DateTime utcNow,
             bool includeContent)
         {

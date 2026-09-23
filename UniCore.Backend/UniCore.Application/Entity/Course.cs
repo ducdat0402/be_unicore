@@ -17,5 +17,6 @@ namespace UniCore.Application.Entity
 
         public virtual Department Department { get; set; } = null!;
         public virtual ICollection<CourseStudent> CourseStudents { get; set; } = new List<CourseStudent>();
+        public virtual ICollection<ClassCourse> ClassCourses { get; set; } = new List<ClassCourse>();
     }
 }

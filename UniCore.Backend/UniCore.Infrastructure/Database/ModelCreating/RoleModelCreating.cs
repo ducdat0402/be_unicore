@@ -30,6 +30,13 @@ namespace UniCore.Infrastructure.Database.ModelCreating
                     .HasColumnName("is_system_role")
                     .HasDefaultValue(false);
 
+                entity.Property(e => e.IsDeleted)
+                    .HasColumnName("is_deleted")
+                    .HasDefaultValue(false);
+
+                entity.HasIndex(e => e.Name).IsUnique().HasDatabaseName("UQ_roles_name");
+                entity.HasIndex(e => e.Code).HasDatabaseName("IX_roles_code").HasFilter("[code] IS NOT NULL");
+
                 entity.Property(e => e.CreatedAt)
                     .HasColumnName("created_at")
                     .ValueGeneratedOnAdd()

@@ -12,7 +12,7 @@ PRINT 'Executing Post-Deployment Seed Scripts...';
 :r .\SeedData\01_SeedRoles.sql
 :r .\SeedData\02_SeedUsers.sql
 :r .\SeedData\03_SeedPermissions.sql
-:r .\SeedData\06_SeedDepartments.sql
+:r .\SeedData\04_SeedDepartments.sql
 :r .\SeedData\07_SeedCourses.sql
 :r .\SeedData\08_SeedClasses.sql
 :r .\SeedData\09_SeedStudentClasses.sql

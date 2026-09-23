@@ -1,15 +1,11 @@
 using System.Text.Json.Serialization;
+using UniCore.Application.DTO;
 
 namespace UniCore.Application.Feature.v1.Announcement.GetStudentAnnouncements
 {
-    public class GetStudentAnnouncementsResponseDTO
+    public class GetStudentAnnouncementsResponseDTO : PageNumberPaginationResponse<StudentAnnouncementItemDTO>
     {
-        public List<StudentAnnouncementItemDTO> Announcements { get; set; } = new();
-        public int TotalCount { get; set; }
         public int UnreadCount { get; set; }
-        public int Page { get; set; }
-        public int PageSize { get; set; }
-        public int TotalPages { get; set; }
     }
 
     public class StudentAnnouncementItemDTO

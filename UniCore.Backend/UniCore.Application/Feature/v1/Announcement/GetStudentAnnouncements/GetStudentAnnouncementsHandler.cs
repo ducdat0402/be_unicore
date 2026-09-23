@@ -33,7 +33,7 @@ namespace UniCore.Application.Feature.v1.Announcement.GetStudentAnnouncements
                 request.StudentId,
                 request.Type,
                 timeStatus: "active",
-                request.Page,
+                request.PageNumber,
                 request.PageSize,
                 cancellationToken);
 
@@ -79,10 +79,10 @@ namespace UniCore.Application.Feature.v1.Announcement.GetStudentAnnouncements
 
             return new GetStudentAnnouncementsResponseDTO
             {
-                Announcements = items,
-                TotalCount = announcements.TotalCount,
+                Items = items,
+                TotalRecords = announcements.TotalCount,
                 UnreadCount = unreadCount,
-                Page = request.Page,
+                PageNumber = request.PageNumber,
                 PageSize = request.PageSize,
                 TotalPages = (int)Math.Ceiling(announcements.TotalCount / (double)request.PageSize)
             };

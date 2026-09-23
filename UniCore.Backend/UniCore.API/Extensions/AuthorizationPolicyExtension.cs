@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using UniCore.API.AuthorizationHandler;
 using UniCore.API.AuthorizationHandler.Permission;
-// using UniCore.API.AuthorizationHandler.Role;
 
 namespace UniCore.API.Extensions
 {
@@ -11,7 +10,7 @@ namespace UniCore.API.Extensions
         public static void AddAuthorizationPolicyService(this IServiceCollection services)
         {
             services.AddSingleton<IAuthorizationPolicyProvider, DynamicAuthorizationPolicyProvider>();
-            // services.AddScoped<IAuthorizationHandler, RoleAuthorizationHandler>();
+
             services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
         }
 

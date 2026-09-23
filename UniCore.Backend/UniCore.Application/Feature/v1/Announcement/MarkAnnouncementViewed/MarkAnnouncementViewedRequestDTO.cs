@@ -1,6 +1,8 @@
+using UniCore.Application.Contract.RequestHandlerHub;
+
 namespace UniCore.Application.Feature.v1.Announcement.MarkAnnouncementViewed
 {
-    public class MarkAnnouncementViewedRequestDTO
+    public class MarkAnnouncementViewedRequestDTO : IRequest<MarkAnnouncementViewedResponseDTO>
     {
         /// <summary>
         /// Announcement ID.

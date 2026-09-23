@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using FluentValidation.Results;
 using Mapster;
 using MapsterMapper;
@@ -8,7 +8,7 @@ using UniCore.Application.Contract.RequestHandlerHub;
 
 namespace UniCore.Application.Feature.v1.User.GetUserInfo
 {
-    public class GetUserInfoHandler : IRequestHandler<GetUserInfoRequestDTO, GetUserInfoResponseDTO>
+    public class GetUserInfoHandler : IRequestHandler<GetUserInfoRequestDTO, GetUserInfoResponseDTO?>
     {
         private readonly IUserProfileRepository _profileRepository;
         private readonly IValidator<GetUserInfoRequestDTO> _validator;
@@ -25,7 +25,7 @@ namespace UniCore.Application.Feature.v1.User.GetUserInfo
             _mapper = mapper;
         }
 
-        public async Task<GetUserInfoResponseDTO> HandleAsync(GetUserInfoRequestDTO request, CancellationToken ct) 
+        public async Task<GetUserInfoResponseDTO?> HandleAsync(GetUserInfoRequestDTO request, CancellationToken ct) 
         {
             ValidationResult results = await _validator.ValidateAsync(request, ct);
 
@@ -34,14 +34,14 @@ namespace UniCore.Application.Feature.v1.User.GetUserInfo
                 throw new ValidationException(results.Errors);
             }
 
-            var userProfile = await _profileRepository.GetByUserIDAsync(request.UserID, ct);
+            var userProfile = await _profileRepository.GetByUserIdAsync(request.UserID, ct);
 
             if (userProfile == null) 
             {
-                throw new NullReferenceException(nameof(userProfile));
+                return null;
             }
 
-            return userProfile.Adapt<GetUserInfoResponseDTO>();
+            return _mapper.Map<GetUserInfoResponseDTO>(userProfile);
 
         }
 

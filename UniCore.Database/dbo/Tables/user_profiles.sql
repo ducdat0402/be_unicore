@@ -19,5 +19,16 @@ CREATE TABLE [dbo].[user_profiles] (
     [updated_by]           VARCHAR (50)  NULL,
     PRIMARY KEY CLUSTERED ([id] ASC),
     CONSTRAINT [FK_user_profiles_users] FOREIGN KEY ([user_id]) REFERENCES [dbo].[users] ([id]) ON DELETE CASCADE,
-    CONSTRAINT [UQ_user_profiles_user_id] UNIQUE ([user_id])
+    CONSTRAINT [UQ_user_profiles_user_id] UNIQUE NONCLUSTERED ([user_id] ASC)
 );
+GO
+
+CREATE NONCLUSTERED INDEX [IX_user_profiles_phone_number]
+    ON [dbo].[user_profiles] ([phone_number] ASC)
+    WHERE [phone_number] IS NOT NULL;
+GO
+
+CREATE NONCLUSTERED INDEX [IX_user_profiles_full_name]
+    ON [dbo].[user_profiles] ([full_name] ASC)
+    WHERE [full_name] IS NOT NULL;
+GO

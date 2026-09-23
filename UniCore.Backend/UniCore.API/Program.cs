@@ -1,5 +1,6 @@
 using UniCore.API.Environment;
 using UniCore.API.Extensions;
+using UniCore.API.Logging;
 using UniCore.API.Middlewares;
 using UniCore.Application;
 using UniCore.Infrastructure;
@@ -12,6 +13,8 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+
+        CustomAdoNetAppender.ConnectionStringOverride = builder.Configuration["Database:ConnectionString"];
 
         builder.Logging.ClearProviders();
 

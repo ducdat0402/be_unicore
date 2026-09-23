@@ -7,7 +7,7 @@ namespace UniCore.Application.Feature.v1.Announcement.Workflow
     public static class StudentAnnouncementWorkflowMapping
     {
         public static StudentAnnouncementWorkflowItemDto ToWorkflowItem(
-            Announcement announcement,
+            Application.Entity.Announcement announcement,
             AnnouncementStudent? link,
             DateTime utcNow,
             bool includeContent)

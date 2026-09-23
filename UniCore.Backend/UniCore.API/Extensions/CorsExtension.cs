@@ -1,5 +1,3 @@
-using UniCore.Helper.Constant;
-
 namespace UniCore.API.Extensions
 {
     public static class CorsExtension
@@ -10,31 +8,30 @@ namespace UniCore.API.Extensions
             {
                 options.AddDefaultPolicy(builder =>
                 {
-                    builder.AllowAnyMethod()
-                           .SetPreflightMaxAge(TimeSpan.FromDays(1.0))
-                           .SetIsOriginAllowed((string origin) =>
-                           {
-                               if (string.IsNullOrEmpty(origin))
-                                   return false;
-
-                               if (origin.StartsWith(CorsPolicyConstants.HttpLocalhostPrefix, StringComparison.OrdinalIgnoreCase) ||
-                                   origin.StartsWith(CorsPolicyConstants.HttpsLocalhostPrefix, StringComparison.OrdinalIgnoreCase) ||
-                                   origin.Equals(CorsPolicyConstants.NullOrigin, StringComparison.OrdinalIgnoreCase))
-                               {
-                                   return true;
-                               }
-
-                               return (origin.EndsWith(CorsPolicyConstants.AvepointDomainSuffix, StringComparison.OrdinalIgnoreCase) ||
-                                       origin.EndsWith(CorsPolicyConstants.SharepointGuildDomainSuffix, StringComparison.OrdinalIgnoreCase)) &&
-                                      Uri.TryCreate(origin, UriKind.Absolute, out Uri? _);
-                           })
+                    builder.WithOrigins(
+                                "http://172.29.50.21:5174",
+                                "https://172.29.50.21:5174",
+                                "http://172.29.50.28:5173",
+                                "https://172.29.50.28:5173",
+                                "http://172.29.50.21:5173",
+                                "https://172.29.50.21:5173",
+                                "http://localhost:5173",
+                                "https://localhost:5173",
+                                "http://localhost:5174",
+                                "https://localhost:5174",
+                                "http://localhost:5290",
+                                "https://localhost:5290",
+                                "http://0.0.0.0:5290",
+                                "https://0.0.0.0:5290",
+                                "http://172.29.50.31:5290",
+                                "https://172.29.50.31:5290")
+                           .AllowAnyMethod()
                            .AllowAnyHeader()
-                           .AllowCredentials();
+                           .AllowCredentials()
+                           .SetPreflightMaxAge(TimeSpan.FromDays(1.0));
                 });
             });
         }
-
-        // 5173, 5174
 
         public static void ConfigureCors(this WebApplication app, IWebHostEnvironment env)
         {

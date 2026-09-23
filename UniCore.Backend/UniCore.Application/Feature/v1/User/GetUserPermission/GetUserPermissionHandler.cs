@@ -27,9 +27,9 @@ namespace UniCore.Application.Feature.v1.User.GetUserPermission
             _cacheService = cacheService;
         }
 
-        public async Task<GetUserPermissionResponseDTO> HandleAsync(GetUserPermissionRequestDTO request, CancellationToken ct)
+        public async Task<GetUserPermissionResponseDTO> HandleAsync(GetUserPermissionRequestDTO request, CancellationToken cancellationToken)
         {
-            ValidationResult results = await _validator.ValidateAsync(request, ct);
+            ValidationResult results = await _validator.ValidateAsync(request, cancellationToken);
 
             if (!results.IsValid)
             {
@@ -41,14 +41,14 @@ namespace UniCore.Application.Feature.v1.User.GetUserPermission
 
             if (_cacheService != null)
             {
-                var cached = await _cacheService.GetAsync<GetUserPermissionResponseDTO>(cacheKey, ct);
+                var cached = await _cacheService.GetAsync<GetUserPermissionResponseDTO>(cacheKey, cancellationToken);
                 if (cached != null)
                 {
                     return cached;
                 }
             }
 
-            var result = await _userPermissionRepository.GetByUserIDAsync(request.UserID, ct);
+            var result = await _userPermissionRepository.GetByUserIDAsync(request.UserID, cancellationToken);
 
             var response = new GetUserPermissionResponseDTO()
             {
@@ -57,7 +57,7 @@ namespace UniCore.Application.Feature.v1.User.GetUserPermission
 
             if (_cacheService != null)
             {
-                await _cacheService.SetAsync(cacheKey, response, cacheDuration, ct);
+                await _cacheService.SetAsync(cacheKey, response, cacheDuration, cancellationToken);
             }
 
             return response;

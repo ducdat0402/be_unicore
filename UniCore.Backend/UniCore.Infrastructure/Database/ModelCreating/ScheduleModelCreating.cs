@@ -39,6 +39,15 @@ namespace UniCore.Infrastructure.Database.ModelCreating
                 entity.Property(e => e.CreatedBy).HasColumnName("created_by").HasMaxLength(50);
                 entity.Property(e => e.UpdatedBy).HasColumnName("updated_by").HasMaxLength(50);
 
+                entity.HasIndex(e => e.StudentCourseId)
+                    .HasDatabaseName("IX_schedules_student_course_id");
+
+                entity.HasIndex(e => new { e.DayOccur, e.TimeSlot })
+                    .HasDatabaseName("IX_schedules_day_occur_time_slot");
+
+                entity.HasIndex(e => new { e.IsDeleted, e.IsActive })
+                    .HasDatabaseName("IX_schedules_active_deleted");
+
                 entity.HasOne(e => e.CourseStudent)
                     .WithMany(cs => cs.Schedules)
                     .HasForeignKey(e => e.StudentCourseId)

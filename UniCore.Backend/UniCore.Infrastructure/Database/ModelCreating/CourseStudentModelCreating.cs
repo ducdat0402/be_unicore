@@ -20,7 +20,7 @@ namespace UniCore.Infrastructure.Database.ModelCreating
 
                 entity.Property(e => e.Code).HasColumnName("code").HasMaxLength(50);
                 entity.Property(e => e.CourseId).HasColumnName("course_id").IsRequired().HasMaxLength(50);
-                entity.Property(e => e.StudentClassId).HasColumnName("student_class_id").IsRequired().HasMaxLength(50);
+                entity.Property(e => e.UserId).HasColumnName("user_id").IsRequired().HasMaxLength(50);
                 entity.Property(e => e.StartDate).HasColumnName("start_date").IsRequired();
                 entity.Property(e => e.EndDate).HasColumnName("end_date").IsRequired();
                 entity.Property(e => e.Weight).HasColumnName("weight").HasDefaultValue(1);
@@ -43,16 +43,28 @@ namespace UniCore.Infrastructure.Database.ModelCreating
                 entity.Property(e => e.CreatedBy).HasColumnName("created_by").HasMaxLength(50);
                 entity.Property(e => e.UpdatedBy).HasColumnName("updated_by").HasMaxLength(50);
 
-                entity.HasIndex(e => new { e.CourseId, e.StudentClassId }).IsUnique();
+                entity.HasIndex(e => new { e.CourseId, e.UserId })
+                    .IsUnique()
+                    .HasDatabaseName("UQ_course_students_assignment");
+
+                entity.HasIndex(e => e.UserId)
+                    .HasDatabaseName("IX_course_students_user_id");
+
+                entity.HasIndex(e => new { e.Status, e.IsActive, e.IsDeleted })
+                    .HasDatabaseName("IX_course_students_status");
+
+                entity.HasIndex(e => e.Code)
+                    .HasDatabaseName("IX_course_students_code")
+                    .HasFilter("[code] IS NOT NULL");
 
                 entity.HasOne(e => e.Course)
                     .WithMany(c => c.CourseStudents)
                     .HasForeignKey(e => e.CourseId)
                     .OnDelete(DeleteBehavior.Restrict);
 
-                entity.HasOne(e => e.StudentClass)
-                    .WithMany(sc => sc.CourseStudents)
-                    .HasForeignKey(e => e.StudentClassId)
+                entity.HasOne(e => e.User)
+                    .WithMany(u => u.CourseStudents)
+                    .HasForeignKey(e => e.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
         }

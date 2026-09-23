@@ -17,5 +17,10 @@ CREATE TABLE [dbo].[user_external_logins] (
     [updated_by]           VARCHAR (50)  NULL,
     PRIMARY KEY CLUSTERED ([id] ASC),
     CONSTRAINT [FK_user_external_logins_users] FOREIGN KEY ([user_id]) REFERENCES [dbo].[users] ([id]) ON DELETE CASCADE,
-    CONSTRAINT [UQ_user_external_logins_provider_key] UNIQUE ([provider], [provider_user_id])
+    CONSTRAINT [UQ_user_external_logins_provider_key] UNIQUE NONCLUSTERED ([provider] ASC, [provider_user_id] ASC)
 );
+GO
+
+CREATE NONCLUSTERED INDEX [IX_user_external_logins_user_id]
+    ON [dbo].[user_external_logins] ([user_id] ASC);
+GO

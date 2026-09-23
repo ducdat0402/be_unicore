@@ -67,14 +67,12 @@
     <Build Include="dbo\Tables\departments.sql" />
     <Build Include="dbo\Tables\courses.sql" />
     <Build Include="dbo\Tables\classes.sql" />
-    <Build Include="dbo\Tables\student_classes.sql" />
     <Build Include="dbo\Tables\course_students.sql" />
     <Build Include="dbo\Tables\schedules.sql" />
     <Build Include="dbo\Tables\whitelisted_emails.sql" />
     <Build Include="dbo\Tables\announcements.sql" />
     <Build Include="dbo\Tables\announcement_students.sql" />
     <Build Include="dbo\Tables\announcement_email_logs.sql" />
-    <Build Include="dbo\Tables\announcement_email_whitelists.sql" />
     <Build Include="dbo\Tables\users.sql" />
     <Build Include="dbo\Tables\user_profiles.sql" />
     <Build Include="dbo\Tables\user_person_ids.sql" />
@@ -95,7 +93,6 @@
     <Build Include="dbo\Triggers\trg_courses_auto_code.sql" />
     <Build Include="dbo\Triggers\trg_classes_auto_code.sql" />
     <Build Include="dbo\Triggers\trg_announcements_auto_code.sql" />
-    <Build Include="dbo\Triggers\trg_student_classes_auto_code.sql" />
     <Build Include="dbo\Triggers\trg_course_students_auto_code.sql" />
     <Build Include="dbo\Triggers\trg_schedules_auto_code.sql" />
     <Build Include="dbo\Triggers\trg_whitelisted_emails_auto_code.sql" />

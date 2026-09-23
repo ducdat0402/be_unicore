@@ -15,3 +15,16 @@ CREATE TABLE [dbo].[schedules] (
     CONSTRAINT [FK_schedules_created_by] FOREIGN KEY ([created_by]) REFERENCES [dbo].[users] ([id]),
     CONSTRAINT [FK_schedules_updated_by] FOREIGN KEY ([updated_by]) REFERENCES [dbo].[users] ([id])
 );
+GO
+
+CREATE NONCLUSTERED INDEX [IX_schedules_student_course_id]
+    ON [dbo].[schedules] ([student_course_id] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_schedules_day_occur_time_slot]
+    ON [dbo].[schedules] ([day_occur] ASC, [time_slot] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_schedules_active_deleted]
+    ON [dbo].[schedules] ([is_deleted] ASC, [is_active] ASC);
+GO

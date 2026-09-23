@@ -19,6 +19,8 @@ namespace UniCore.Infrastructure.Database.ModelCreating
                     .HasDefaultValueSql("dbo.fn_GenerateUUIDv7()");
 
                 entity.Property(e => e.Code).HasColumnName("code").HasMaxLength(50);
+                entity.Property(e => e.StudentCode).HasColumnName("student_code").HasMaxLength(50);
+                entity.Property(e => e.ClassId).HasColumnName("class_id").HasMaxLength(50);
                 entity.Property(e => e.Username).HasColumnName("username").IsRequired().HasMaxLength(50);
                 entity.Property(e => e.Email).HasColumnName("email").IsRequired().HasMaxLength(100);
                 entity.Property(e => e.PasswordHash).HasColumnName("password_hash").IsRequired().HasMaxLength(255);
@@ -57,6 +59,18 @@ namespace UniCore.Infrastructure.Database.ModelCreating
 
                 entity.Property(e => e.CreatedBy).HasColumnName("created_by").HasMaxLength(50);
                 entity.Property(e => e.UpdatedBy).HasColumnName("updated_by").HasMaxLength(50);
+
+                entity.HasIndex(e => e.Email).IsUnique().HasDatabaseName("UQ_users_email");
+                entity.HasIndex(e => e.Username).IsUnique().HasDatabaseName("UQ_users_username");
+                entity.HasIndex(e => e.ClassId).HasDatabaseName("IX_users_class_id").HasFilter("[class_id] IS NOT NULL");
+                entity.HasIndex(e => e.StudentCode).HasDatabaseName("IX_users_student_code").HasFilter("[student_code] IS NOT NULL");
+                entity.HasIndex(e => e.Code).HasDatabaseName("IX_users_code").HasFilter("[code] IS NOT NULL");
+                entity.HasIndex(e => e.IsActive).HasDatabaseName("IX_users_is_active");
+
+                entity.HasOne(e => e.Class)
+                    .WithMany(c => c.Students)
+                    .HasForeignKey(e => e.ClassId)
+                    .OnDelete(DeleteBehavior.SetNull);
 
                 entity.HasMany(x => x.UserRoles)
                     .WithOne(x => x.User)

@@ -42,6 +42,8 @@ namespace UniCore.Infrastructure.Database.ModelCreating
                 entity.Property(e => e.CreatedBy).HasColumnName("created_by").HasMaxLength(50);
                 entity.Property(e => e.UpdatedBy).HasColumnName("updated_by").HasMaxLength(50);
 
+                entity.HasIndex(e => e.UserId).IsUnique().HasDatabaseName("UQ_user_mfa_settings_user_id");
+
                 entity.HasOne(e => e.User)
                     .WithOne(u => u.UserMfaSetting)
                     .HasForeignKey<UserMfaSetting>(e => e.UserId)

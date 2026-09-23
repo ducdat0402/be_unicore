@@ -1,4 +1,5 @@
 using UniCore.Application.DTO.Entity;
+using UniCore.Application.Feature.v1.Auth.Login;
 
 namespace UniCore.Application.Feature.v1.FaceAuth.VerifyPin
 {

@@ -102,8 +102,7 @@ namespace UniCore.API.Controllers.v1
             if (!result.Success)
             {
                 return BadRequestResponse<FaceEnrollResponseDTO>(
-                    result.ErrorMessage ?? _localizer.GetString(MessageConstants.FaceAuth.EnrollFailed),
-                    result);
+                    result.ErrorMessage ?? _localizer.GetString(MessageConstants.FaceAuth.EnrollFailed));
             }
 
             return OkResponse(result, _localizer.GetString(MessageConstants.FaceAuth.EnrollSuccess));
@@ -144,8 +143,7 @@ namespace UniCore.API.Controllers.v1
             if (!result.Success)
             {
                 return BadRequestResponse<SetPinResponseDTO>(
-                    result.ErrorMessage ?? _localizer.GetString(MessageConstants.FaceAuth.SetPinFailed),
-                    result);
+                    result.ErrorMessage ?? _localizer.GetString(MessageConstants.FaceAuth.SetPinFailed));
             }
 
             return OkResponse(result, _localizer.GetString(MessageConstants.FaceAuth.SetPinSuccess));
@@ -226,8 +224,7 @@ namespace UniCore.API.Controllers.v1
             if (!result.Success)
             {
                 return BadRequestResponse<FaceLoginResponseDTO>(
-                    result.ErrorMessage ?? _localizer.GetString(MessageConstants.FaceAuth.LoginFailed),
-                    result);
+                    result.ErrorMessage ?? _localizer.GetString(MessageConstants.FaceAuth.LoginFailed));
             }
 
             return OkResponse(result, _localizer.GetString(MessageConstants.FaceAuth.LoginSuccess));
@@ -262,8 +259,7 @@ namespace UniCore.API.Controllers.v1
             if (!result.Success)
             {
                 return BadRequestResponse<VerifyPinResponseDTO>(
-                    result.ErrorMessage ?? _localizer.GetString(MessageConstants.FaceAuth.VerifyPinFailed),
-                    result);
+                    result.ErrorMessage ?? _localizer.GetString(MessageConstants.FaceAuth.VerifyPinFailed));
             }
 
             return OkResponse(result, _localizer.GetString(MessageConstants.FaceAuth.VerifyPinSuccess));

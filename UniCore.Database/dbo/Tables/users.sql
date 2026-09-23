@@ -1,6 +1,8 @@
 CREATE TABLE [dbo].[users] (
     [id]                    VARCHAR (50)  CONSTRAINT [DF_users_id] DEFAULT ([dbo].[fn_GenerateUUIDv7]()) NOT NULL,
     [code]                  VARCHAR (50)  NULL,
+    [student_code]          VARCHAR (50)  NULL,
+    [class_id]              VARCHAR (50)  NULL,
     [username]              VARCHAR (50)  NOT NULL,
     [email]                 VARCHAR (100) NOT NULL,
     [password_hash]         VARCHAR (255) NOT NULL,
@@ -16,6 +18,27 @@ CREATE TABLE [dbo].[users] (
     [created_by]            VARCHAR (50)  NULL,
     [updated_by]            VARCHAR (50)  NULL,
     PRIMARY KEY CLUSTERED ([id] ASC),
-    UNIQUE NONCLUSTERED ([email] ASC),
-    UNIQUE NONCLUSTERED ([username] ASC)
+    CONSTRAINT [FK_users_classes] FOREIGN KEY ([class_id]) REFERENCES [dbo].[classes] ([id]),
+    CONSTRAINT [UQ_users_email] UNIQUE NONCLUSTERED ([email] ASC),
+    CONSTRAINT [UQ_users_username] UNIQUE NONCLUSTERED ([username] ASC)
 );
+GO
+
+CREATE NONCLUSTERED INDEX [IX_users_class_id]
+    ON [dbo].[users] ([class_id] ASC)
+    WHERE [class_id] IS NOT NULL;
+GO
+
+CREATE NONCLUSTERED INDEX [IX_users_student_code]
+    ON [dbo].[users] ([student_code] ASC)
+    WHERE [student_code] IS NOT NULL;
+GO
+
+CREATE NONCLUSTERED INDEX [IX_users_code]
+    ON [dbo].[users] ([code] ASC)
+    WHERE [code] IS NOT NULL;
+GO
+
+CREATE NONCLUSTERED INDEX [IX_users_is_active]
+    ON [dbo].[users] ([is_active] ASC);
+GO

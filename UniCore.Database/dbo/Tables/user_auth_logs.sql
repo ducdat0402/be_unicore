@@ -9,3 +9,16 @@ CREATE TABLE [dbo].[user_auth_logs] (
     PRIMARY KEY CLUSTERED ([id] ASC),
     CONSTRAINT [FK_user_auth_logs_users] FOREIGN KEY ([user_id]) REFERENCES [dbo].[users] ([id]) ON DELETE SET NULL
 );
+GO
+
+CREATE NONCLUSTERED INDEX [IX_user_auth_logs_user_id_date]
+    ON [dbo].[user_auth_logs] ([user_id] ASC, [created_at] DESC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_user_auth_logs_event_type]
+    ON [dbo].[user_auth_logs] ([event_type] ASC, [created_at] DESC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_user_auth_logs_created_at]
+    ON [dbo].[user_auth_logs] ([created_at] DESC);
+GO

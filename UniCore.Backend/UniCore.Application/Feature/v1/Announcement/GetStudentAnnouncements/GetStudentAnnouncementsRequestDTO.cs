@@ -1,6 +1,9 @@
+using UniCore.Application.Contract.RequestHandlerHub;
+using UniCore.Application.DTO;
+
 namespace UniCore.Application.Feature.v1.Announcement.GetStudentAnnouncements
 {
-    public class GetStudentAnnouncementsRequestDTO
+    public class GetStudentAnnouncementsRequestDTO : PageNumberPaginationRequest, IRequest<GetStudentAnnouncementsResponseDTO>
     {
         /// <summary>
         /// Student ID from JWT token (set by controller).
@@ -16,15 +19,5 @@ namespace UniCore.Application.Feature.v1.Announcement.GetStudentAnnouncements
         /// Filter by type: NORMAL, IMPORTANT, URGENT.
         /// </summary>
         public string? Type { get; set; }
-
-        /// <summary>
-        /// Page number (1-based).
-        /// </summary>
-        public int Page { get; set; } = 1;
-
-        /// <summary>
-        /// Page size.
-        /// </summary>
-        public int PageSize { get; set; } = 20;
     }
 }

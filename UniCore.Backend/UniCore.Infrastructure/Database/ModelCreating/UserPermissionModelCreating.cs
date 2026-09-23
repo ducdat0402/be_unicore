@@ -33,6 +33,9 @@ namespace UniCore.Infrastructure.Database.ModelCreating
                     .HasColumnName("is_active")
                     .HasDefaultValue(true);
 
+                entity.HasIndex(e => new { e.UserId, e.PermissionId }).IsUnique().HasDatabaseName("UQ_user_permissions_user_permission");
+                entity.HasIndex(e => e.PermissionId).HasDatabaseName("IX_user_permissions_permission_id");
+
                 entity.HasOne(e => e.User)
                     .WithMany(u => u.UserPermissions)
                     .HasForeignKey(e => e.UserId)

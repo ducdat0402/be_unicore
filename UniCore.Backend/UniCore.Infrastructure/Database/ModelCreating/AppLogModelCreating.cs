@@ -26,6 +26,16 @@ namespace UniCore.Infrastructure.Database.ModelCreating
                 entity.Property(e => e.Exception).HasColumnName("exception");
                 entity.Property(e => e.MachineName).HasColumnName("machine_name").HasMaxLength(255);
                 entity.Property(e => e.TraceId).HasColumnName("trace_id").HasMaxLength(255);
+
+                entity.HasIndex(e => e.LogDate)
+                    .HasDatabaseName("IX_app_logs_log_date");
+
+                entity.HasIndex(e => new { e.LogLevel, e.LogDate })
+                    .HasDatabaseName("IX_app_logs_level_date");
+
+                entity.HasIndex(e => e.TraceId)
+                    .HasDatabaseName("IX_app_logs_trace_id")
+                    .HasFilter("[trace_id] IS NOT NULL");
             });
         }
     }

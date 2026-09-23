@@ -17,3 +17,11 @@ GO
 CREATE NONCLUSTERED INDEX [IX_announcement_email_logs_status]
     ON [dbo].[announcement_email_logs] ([status] ASC);
 GO
+
+CREATE NONCLUSTERED INDEX [IX_announcement_email_logs_announcement_id]
+    ON [dbo].[announcement_email_logs] ([announcement_id] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_announcement_email_logs_student_id]
+    ON [dbo].[announcement_email_logs] ([student_id] ASC);
+GO

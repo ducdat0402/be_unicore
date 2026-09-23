@@ -1,9 +1,11 @@
+using UniCore.Application.Contract.RequestHandlerHub;
+
 namespace UniCore.Application.Feature.v1.FaceAuth.Login
 {
     /// <summary>
     /// Request DTO for face login.
     /// </summary>
-    public class FaceLoginRequestDTO
+    public class FaceLoginRequestDTO : IRequest<FaceLoginResponseDTO>
     {
         /// <summary>
         /// Face image stream from uploaded file.

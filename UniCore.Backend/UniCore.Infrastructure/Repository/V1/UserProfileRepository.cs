@@ -21,5 +21,23 @@ namespace UniCore.Infrastructure.Repository.V1
                                     
             return result;
         }
+
+        public async Task<IEnumerable<UserProfile>?> GetInfoByIdAsync(
+            IEnumerable<string> studentIds,
+            CancellationToken ct = default
+            )
+        {
+            var results = await _dbSet
+                .Where(s => studentIds.Contains(s.Id))
+                .AsNoTracking()
+                .ToListAsync(ct);
+
+            return results;
+        }
+
+        public async Task<UserProfile?> GetByUserIdAsync(string userId, CancellationToken cancellationToken = default)
+        {
+            return await _dbSet.FirstOrDefaultAsync(up => up.UserId == userId, cancellationToken);
+        }
     }
 }

@@ -46,7 +46,12 @@ namespace UniCore.Infrastructure.Database.ModelCreating
                 entity.Property(e => e.CreatedBy).HasColumnName("created_by").HasMaxLength(50);
                 entity.Property(e => e.UpdatedBy).HasColumnName("updated_by").HasMaxLength(50);
 
-                entity.HasIndex(e => new { e.Provider, e.ProviderUserId }).IsUnique();
+                entity.HasIndex(e => new { e.Provider, e.ProviderUserId })
+                    .IsUnique()
+                    .HasDatabaseName("UQ_user_external_logins_provider_key");
+
+                entity.HasIndex(e => e.UserId)
+                    .HasDatabaseName("IX_user_external_logins_user_id");
 
                 entity.HasOne(e => e.User)
                     .WithMany(u => u.UserExternalLogins)

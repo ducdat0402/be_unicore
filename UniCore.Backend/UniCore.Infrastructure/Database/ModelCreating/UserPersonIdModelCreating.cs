@@ -60,7 +60,9 @@ namespace UniCore.Infrastructure.Database.ModelCreating
                 entity.Property(e => e.CreatedBy).HasColumnName("created_by").HasMaxLength(50);
                 entity.Property(e => e.UpdatedBy).HasColumnName("updated_by").HasMaxLength(50);
 
-                entity.HasIndex(e => e.IdNumber).IsUnique();
+                entity.HasIndex(e => e.UserId).IsUnique().HasDatabaseName("UQ_user_person_ids_user_id");
+                entity.HasIndex(e => e.IdNumber).IsUnique().HasDatabaseName("UQ_user_person_ids_id_number");
+                entity.HasIndex(e => e.VerificationStatus).HasDatabaseName("IX_user_person_ids_verification_status");
 
                 entity.HasOne(e => e.User)
                     .WithOne(u => u.UserPersonId)

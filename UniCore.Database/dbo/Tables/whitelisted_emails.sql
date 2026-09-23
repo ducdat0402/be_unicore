@@ -16,3 +16,12 @@ CREATE TABLE [dbo].[whitelisted_emails] (
     CONSTRAINT [FK_whitelisted_emails_created_by] FOREIGN KEY ([created_by]) REFERENCES [dbo].[users] ([id]),
     CONSTRAINT [FK_whitelisted_emails_updated_by] FOREIGN KEY ([updated_by]) REFERENCES [dbo].[users] ([id])
 );
+GO
+
+CREATE NONCLUSTERED INDEX [IX_whitelisted_emails_student_id]
+    ON [dbo].[whitelisted_emails] ([student_id] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_whitelisted_emails_confirmed_active]
+    ON [dbo].[whitelisted_emails] ([is_confirmed] ASC, [is_active] ASC, [is_deleted] ASC);
+GO

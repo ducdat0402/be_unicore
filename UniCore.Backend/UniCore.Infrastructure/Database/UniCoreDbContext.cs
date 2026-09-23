@@ -35,7 +35,6 @@ namespace UniCore.Infrastructure.Database
         public DbSet<Announcement> Announcements { get; set; }
         public DbSet<AnnouncementStudent> AnnouncementStudents { get; set; }
         public DbSet<AnnouncementEmailLog> AnnouncementEmailLogs { get; set; }
-        public DbSet<AnnouncementEmailWhitelist> AnnouncementEmailWhitelists { get; set; }
 
         public DbSet<UserFaceProfile> UserFaceProfiles { get; set; }
         public DbSet<FaceAuthLog> FaceAuthLogs { get; set; }
@@ -60,14 +59,12 @@ namespace UniCore.Infrastructure.Database
             DepartmentModelCreating.CreateModel(modelBuilder);
             CourseModelCreating.CreateModel(modelBuilder);
             SchoolClassModelCreating.CreateModel(modelBuilder);
-            StudentClassModelCreating.CreateModel(modelBuilder);
             CourseStudentModelCreating.CreateModel(modelBuilder);
             ScheduleModelCreating.CreateModel(modelBuilder);
             WhitelistedEmailModelCreating.CreateModel(modelBuilder);
             AnnouncementModelCreating.CreateModel(modelBuilder);
             AnnouncementStudentModelCreating.CreateModel(modelBuilder);
             AnnouncementEmailLogModelCreating.CreateModel(modelBuilder);
-            AnnouncementEmailWhitelistModelCreating.CreateModel(modelBuilder);
             UserFaceProfileModelCreating.CreateModel(modelBuilder);
             FaceAuthLogModelCreating.CreateModel(modelBuilder);
 

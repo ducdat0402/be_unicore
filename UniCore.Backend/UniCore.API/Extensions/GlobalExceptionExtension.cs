@@ -36,6 +36,12 @@ namespace UniCore.API.Extensions
         {
             _logger.LogError(exception, ExceptionConstants.UnhandledExceptionUniCore, exception.Message);
 
+            if (httpContext.Response.HasStarted)
+            {
+                _logger.LogWarning("Response has already started, cannot write exception response.");
+                return false;
+            }
+
             httpContext.Response.ContentType = MediaTypeNames.Application.Json;
 
             (int statusCode, string messageKey, string? customMessage, List<string>? errors) = exception switch

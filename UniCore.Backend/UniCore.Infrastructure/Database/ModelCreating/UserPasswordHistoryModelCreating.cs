@@ -26,6 +26,9 @@ namespace UniCore.Infrastructure.Database.ModelCreating
                     .ValueGeneratedOnAdd()
                     .HasDefaultValueSql("GETDATE()");
 
+                entity.HasIndex(e => new { e.UserId, e.CreatedAt })
+                    .HasDatabaseName("IX_user_password_histories_user_id_date");
+
                 entity.HasOne(e => e.User)
                     .WithMany(u => u.UserPasswordHistories)
                     .HasForeignKey(e => e.UserId)

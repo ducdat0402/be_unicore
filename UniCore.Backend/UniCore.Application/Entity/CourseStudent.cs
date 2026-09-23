@@ -5,7 +5,7 @@ namespace UniCore.Application.Entity
         public string Id { get; set; } = Guid.NewGuid().ToString();
         public string? Code { get; set; }
         public string CourseId { get; set; } = string.Empty;
-        public string StudentClassId { get; set; } = string.Empty;
+        public string UserId { get; set; } = string.Empty;
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public int Weight { get; set; } = 1;
@@ -19,7 +19,7 @@ namespace UniCore.Application.Entity
         public string? UpdatedBy { get; set; }
 
         public virtual Course Course { get; set; } = null!;
-        public virtual StudentClass StudentClass { get; set; } = null!;
+        public virtual User User { get; set; } = null!;
         public virtual ICollection<Schedule> Schedules { get; set; } = new List<Schedule>();
     }
 }

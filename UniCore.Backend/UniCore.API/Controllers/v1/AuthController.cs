@@ -2,14 +2,22 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using StackExchange.Redis;
 using System.Security.Claims;
 using UniCore.API.Controllers;
 using UniCore.Application.Contract.Service.v1;
 using UniCore.Application.DTO;
+using UniCore.Application.Feature.v1.Auth.ChangePassword;
 using UniCore.Application.Feature.v1.Auth.ForgotPassword;
+using UniCore.Application.Feature.v1.Auth.GoogleAuth.GoogleLogin;
+using UniCore.Application.Feature.v1.Auth.GoogleAuth.SimulateGoogleToken;
 using UniCore.Application.Feature.v1.Auth.Login;
 using UniCore.Application.Feature.v1.Auth.Logout;
 using UniCore.Application.Feature.v1.Auth.Me;
+using UniCore.Application.Feature.v1.Auth.Mfa.DisableMfa;
+using UniCore.Application.Feature.v1.Auth.Mfa.EnableMfa;
+using UniCore.Application.Feature.v1.Auth.Mfa.SetupMfa;
+using UniCore.Application.Feature.v1.Auth.Mfa.VerifyMfa;
 using UniCore.Application.Feature.v1.Auth.RefreshToken;
 using UniCore.Application.Feature.v1.Auth.Register;
 using UniCore.Application.Feature.v1.Auth.VerifyOtp;
@@ -32,7 +40,7 @@ namespace Project_Structure_UniCore.Controllers.v1
         /// <summary>
         /// Login
         /// </summary>
-        [EnableRateLimiting("login")]
+        // [EnableRateLimiting("login")]
         [HttpPost("login")]
         [ProducesResponseType(typeof(BaseAPIResponse<LoginResponseDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -65,8 +73,19 @@ namespace Project_Structure_UniCore.Controllers.v1
         [ProducesResponseType(typeof(BaseAPIResponse<RefreshTokenResponseDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<BaseAPIResponse<RefreshTokenResponseDTO>>> RefreshToken([FromBody] RefreshTokenRequestDTO request)
+        public async Task<ActionResult<BaseAPIResponse<RefreshTokenResponseDTO>>> RefreshToken()
         {
+            var refreshToken = Request.Cookies["UniCore_RefreshToken"];
+
+            if (string.IsNullOrEmpty(refreshToken))
+            {
+                return UnauthorizedResponse<RefreshTokenResponseDTO>("Refresh token is missing.");
+            }
+
+            var request = new RefreshTokenRequestDTO
+            {
+                RefreshToken = refreshToken
+            };
             var result = await _authService.RefreshTokenAsync(request);
             var message = _localizer.GetString(MessageConstants.Auth.RefreshTokenSuccess);
             return OkResponse<RefreshTokenResponseDTO>(result, message);
@@ -125,7 +144,6 @@ namespace Project_Structure_UniCore.Controllers.v1
         /// <summary>
         /// Verify email with OTP (Valid-Email)
         /// </summary>
-        [Authorize]
         [HttpPost("verify-otp")]
         [HttpPost("valid-email")]
         [ProducesResponseType(typeof(BaseAPIResponse<VerifyOtpResponseDTO>), StatusCodes.Status200OK)]
@@ -140,7 +158,6 @@ namespace Project_Structure_UniCore.Controllers.v1
         /// <summary>
         /// Request OTP for Forgot Password
         /// </summary>
-        [Authorize]
         [HttpPost("forgot-password")]
         [ProducesResponseType(typeof(BaseAPIResponse<ForgotPasswordResponseDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -154,7 +171,6 @@ namespace Project_Structure_UniCore.Controllers.v1
         /// <summary>
         /// Reset Password using OTP
         /// </summary>
-        [Authorize]
         [HttpPost("reset-password")]
         [ProducesResponseType(typeof(BaseAPIResponse<ResetPasswordResponseDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -163,6 +179,28 @@ namespace Project_Structure_UniCore.Controllers.v1
             var result = await _authService.ResetPasswordAsync(request);
             var message = _localizer.GetString(MessageConstants.Auth.ResetPasswordSuccess);
             return OkResponse<ResetPasswordResponseDTO>(result, message);
+        }
+
+        /// <summary>
+        /// Change Password for authenticated user
+        /// </summary>
+        [Authorize]
+        [HttpPost("change-password")]
+        [ProducesResponseType(typeof(BaseAPIResponse<ChangePasswordResponseDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult<BaseAPIResponse<ChangePasswordResponseDTO>>> ChangePassword([FromBody] ChangePasswordRequestDTO request)
+        {
+            var userId = GetCurrentUserId();
+            if (string.IsNullOrEmpty(userId))
+            {
+                return UnauthorizedResponse<ChangePasswordResponseDTO>(_localizer.GetString(MessageConstants.Auth.IdentityNotFound));
+            }
+            request.UserId = userId;
+
+            var result = await _authService.ChangePasswordAsync(request);
+            var message = _localizer.GetString(MessageConstants.Auth.ChangePasswordSuccess);
+            return OkResponse<ChangePasswordResponseDTO>(result, message);
         }
 
         /// <summary>
@@ -175,11 +213,7 @@ namespace Project_Structure_UniCore.Controllers.v1
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<BaseAPIResponse<GetMeResponseDTO>>> GetMe()
         {
-            var userId = User.FindFirst(AuthConstants.Claims.UserId)?.Value
-                         ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value
-                         ?? User.FindFirst(ClaimTypes.Email)?.Value
-                         ?? string.Empty;
-
+            var userId = GetCurrentUserId();
             if (string.IsNullOrEmpty(userId))
             {
                 var errMessage = _localizer.GetString(MessageConstants.Auth.IdentityNotFound);
@@ -195,6 +229,126 @@ namespace Project_Structure_UniCore.Controllers.v1
 
             var successMessage = _localizer.GetString(MessageConstants.Auth.GetMeSuccess);
             return OkResponse<GetMeResponseDTO>(result, successMessage);
+        }
+
+        // ==========================================
+        // MULTI-FACTOR AUTHENTICATION (MFA)
+        // ==========================================
+
+        /// <summary>
+        /// Setup MFA (Generates secret key, QR URI, and backup codes)
+        /// </summary>
+        [Authorize]
+        [HttpPost("mfa/setup")]
+        [ProducesResponseType(typeof(BaseAPIResponse<SetupMfaResponseDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult<BaseAPIResponse<SetupMfaResponseDTO>>> SetupMfa()
+        {
+            var userId = GetCurrentUserId();
+            if (string.IsNullOrEmpty(userId))
+            {
+                return UnauthorizedResponse<SetupMfaResponseDTO>(_localizer.GetString(MessageConstants.Auth.IdentityNotFound));
+            }
+
+            var result = await _authService.SetupMfaAsync(new SetupMfaRequestDTO { UserId = userId });
+            var message = _localizer.GetString(MessageConstants.Auth.MfaSetupSuccess);
+            return OkResponse<SetupMfaResponseDTO>(result, message);
+        }
+
+        /// <summary>
+        /// Enable MFA after verifying initial TOTP code
+        /// </summary>
+        [Authorize]
+        [HttpPost("mfa/enable")]
+        [ProducesResponseType(typeof(BaseAPIResponse<EnableMfaResponseDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult<BaseAPIResponse<EnableMfaResponseDTO>>> EnableMfa([FromBody] EnableMfaRequestDTO request)
+        {
+            var userId = GetCurrentUserId();
+            if (string.IsNullOrEmpty(userId))
+            {
+                return UnauthorizedResponse<EnableMfaResponseDTO>(_localizer.GetString(MessageConstants.Auth.IdentityNotFound));
+            }
+            request.UserId = userId;
+
+            var result = await _authService.EnableMfaAsync(request);
+            var message = _localizer.GetString(MessageConstants.Auth.MfaEnableSuccess);
+            return OkResponse<EnableMfaResponseDTO>(result, message);
+        }
+
+        /// <summary>
+        /// Disable MFA for authenticated user
+        /// </summary>
+        [Authorize]
+        [HttpPost("mfa/disable")]
+        [ProducesResponseType(typeof(BaseAPIResponse<DisableMfaResponseDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult<BaseAPIResponse<DisableMfaResponseDTO>>> DisableMfa([FromBody] DisableMfaRequestDTO request)
+        {
+            var userId = GetCurrentUserId();
+            if (string.IsNullOrEmpty(userId))
+            {
+                return UnauthorizedResponse<DisableMfaResponseDTO>(_localizer.GetString(MessageConstants.Auth.IdentityNotFound));
+            }
+            request.UserId = userId;
+
+            var result = await _authService.DisableMfaAsync(request);
+            var message = _localizer.GetString(MessageConstants.Auth.MfaDisableSuccess);
+            return OkResponse<DisableMfaResponseDTO>(result, message);
+        }
+
+        /// <summary>
+        /// Verify MFA code or backup code
+        /// </summary>
+        [HttpPost("mfa/verify")]
+        [ProducesResponseType(typeof(BaseAPIResponse<VerifyMfaResponseDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<BaseAPIResponse<VerifyMfaResponseDTO>>> VerifyMfa([FromBody] VerifyMfaRequestDTO request)
+        {
+            var result = await _authService.VerifyMfaAsync(request);
+            var message = _localizer.GetString(MessageConstants.Auth.MfaVerifySuccess);
+            return OkResponse<VerifyMfaResponseDTO>(result, message);
+        }
+
+        // ==========================================
+        // GOOGLE OAUTH 2.0 SIMULATION & LOGIN
+        // ==========================================
+
+        /// <summary>
+        /// Simulated Google Auth Provider: Generate a mock Google ID Token
+        /// </summary>
+        [HttpPost("google-provider/simulate-token")]
+        [ProducesResponseType(typeof(BaseAPIResponse<SimulateGoogleTokenResponseDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<BaseAPIResponse<SimulateGoogleTokenResponseDTO>>> SimulateGoogleToken([FromBody] SimulateGoogleTokenRequestDTO request)
+        {
+            var result = await _authService.SimulateGoogleTokenAsync(request);
+            var message = _localizer.GetString(MessageConstants.Auth.SimulateGoogleTokenSuccess);
+            return OkResponse<SimulateGoogleTokenResponseDTO>(result, message);
+        }
+
+        /// <summary>
+        /// Login to UniCore using a Google ID Token (OAuth 2.0 Simulation)
+        /// </summary>
+        [HttpPost("google-login")]
+        [ProducesResponseType(typeof(BaseAPIResponse<LoginResponseDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult<BaseAPIResponse<LoginResponseDTO>>> GoogleLogin([FromBody] GoogleLoginRequestDTO request)
+        {
+            var result = await _authService.GoogleLoginAsync(request);
+            var message = _localizer.GetString(MessageConstants.Auth.GoogleLoginSuccess);
+            return OkResponse<LoginResponseDTO>(result, message);
+        }
+
+        private string GetCurrentUserId()
+        {
+            return User.FindFirst(AuthConstants.Claims.UserId)?.Value
+                   ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                   ?? User.FindFirst(ClaimTypes.Email)?.Value
+                   ?? string.Empty;
         }
     }
 }

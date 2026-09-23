@@ -13,6 +13,17 @@ namespace UniCore.Infrastructure.Repository.V1
         {
         }
 
+        public async Task<IEnumerable<CourseStudent>?> GetByStuIdCourseIdsAsync(string studentId, IEnumerable<string> courseIds, CancellationToken ct)
+        {
+            var result = await _dbSet
+                            .Where(x => x.UserId.Equals(studentId) && courseIds.Contains(x.CourseId))
+                            .Take(30)
+                            .AsNoTracking()
+                            .ToListAsync();
+
+            return result;
+        }
+
         public async Task<List<string>> GetActiveStudentIdsByCourseIdAsync(string courseId, CancellationToken cancellationToken = default)
         {
             return await _dbSet
@@ -20,12 +31,8 @@ namespace UniCore.Infrastructure.Repository.V1
                 .Where(cs =>
                     cs.CourseId == courseId &&
                     cs.IsActive &&
-                    !cs.IsDeleted &&
-                    cs.StudentClass.IsActive &&
-                    !cs.StudentClass.IsDeleted &&
-                    cs.StudentClass.Status == "ACTIVE" &&
-                    cs.StudentClass.Student.IsActive)
-                .Select(cs => cs.StudentClass.StudentId)
+                    !cs.IsDeleted)
+                .Select(cs => cs.User.StudentCode)
                 .Distinct()
                 .ToListAsync(cancellationToken);
         }

@@ -13,6 +13,18 @@ namespace UniCore.Infrastructure.Repository.V1
         {
         }
 
+        public async Task<SchoolClass?> GetInfoByIdAsync(
+           string classIds,
+           CancellationToken ct = default
+           )
+        {
+            var results = await _dbSet
+                .Where(s => s.Id.Equals(classIds))
+                .AsNoTracking()
+                .FirstOrDefaultAsync(ct);
+            return results;
+        }
+
         public async Task<SchoolClass?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
         {
             return await _dbSet.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id, cancellationToken);

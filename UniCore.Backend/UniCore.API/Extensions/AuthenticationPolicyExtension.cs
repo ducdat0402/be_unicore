@@ -2,7 +2,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Text;
+using UniCore.Application.DTO;
 using UniCore.Helper.Constant;
+using UniCore.Helper.Localization;
 
 namespace UniCore.API.Extensions
 {
@@ -49,6 +51,40 @@ namespace UniCore.API.Extensions
                             context.Response.Headers.Append(AuthConstants.Headers.TokenExpired, AuthConstants.Headers.ValueTrue);
                         }
                         return Task.CompletedTask;
+                    },
+                    OnChallenge = async context =>
+                    {
+                        context.HandleResponse();
+
+                        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                        context.Response.ContentType = "application/json";
+
+                        var localizer = context.HttpContext.RequestServices.GetRequiredService<IJsonStringLocalizer>();
+                        var message = localizer.GetString(MessageConstants.System.UnauthorizedAccess);
+                        var response = BaseAPIResponse<object>.Failure(message, StatusCodes.Status401Unauthorized);
+
+                        var jsonOptions = new System.Text.Json.JsonSerializerOptions
+                        {
+                            PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+                        };
+
+                        await System.Text.Json.JsonSerializer.SerializeAsync(context.Response.Body, response, jsonOptions);
+                    },
+                    OnForbidden = async context =>
+                    {
+                        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                        context.Response.ContentType = "application/json";
+
+                        var localizer = context.HttpContext.RequestServices.GetRequiredService<IJsonStringLocalizer>();
+                        var message = localizer.GetString(MessageConstants.System.ForbiddenAccess);
+                        var response = BaseAPIResponse<object>.Failure(message, StatusCodes.Status403Forbidden);
+
+                        var jsonOptions = new System.Text.Json.JsonSerializerOptions
+                        {
+                            PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+                        };
+
+                        await System.Text.Json.JsonSerializer.SerializeAsync(context.Response.Body, response, jsonOptions);
                     }
                 };
             });

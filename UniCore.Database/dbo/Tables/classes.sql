@@ -16,3 +16,12 @@ CREATE TABLE [dbo].[classes] (
     CONSTRAINT [FK_classes_created_by] FOREIGN KEY ([created_by]) REFERENCES [dbo].[users] ([id]),
     CONSTRAINT [FK_classes_updated_by] FOREIGN KEY ([updated_by]) REFERENCES [dbo].[users] ([id])
 );
+GO
+
+CREATE NONCLUSTERED INDEX [IX_classes_department_id]
+    ON [dbo].[classes] ([department_id] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_classes_active_deleted]
+    ON [dbo].[classes] ([is_deleted] ASC, [is_active] ASC);
+GO

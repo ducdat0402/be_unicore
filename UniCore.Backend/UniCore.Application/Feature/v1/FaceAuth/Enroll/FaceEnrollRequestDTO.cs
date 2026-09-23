@@ -1,10 +1,12 @@
+using UniCore.Application.Contract.RequestHandlerHub;
+
 namespace UniCore.Application.Feature.v1.FaceAuth.Enroll
 {
     /// <summary>
     /// Request DTO for face enrollment.
     /// Images are passed as streams from the controller.
     /// </summary>
-    public class FaceEnrollRequestDTO
+    public class FaceEnrollRequestDTO : IRequest<FaceEnrollResponseDTO>
     {
         /// <summary>
         /// User ID from JWT token (set by controller, not from client).

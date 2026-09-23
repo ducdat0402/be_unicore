@@ -1,7 +1,7 @@
 CREATE TABLE [dbo].[user_face_profiles]
 (
     [id]                    NVARCHAR(50)    NOT NULL    DEFAULT dbo.fn_GenerateUUIDv7(),
-    [user_id]               NVARCHAR(50)    NOT NULL,
+    [user_id]               VARCHAR(50)    NOT NULL,
     [status]                NVARCHAR(30)    NOT NULL    DEFAULT 'FACE_NOT_ENROLLED',
     [embedding_id]          NVARCHAR(100)   NULL,
     [model_version]         NVARCHAR(50)    NULL,

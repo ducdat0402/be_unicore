@@ -15,6 +15,7 @@ namespace UniCore.Application.Entity
         public string? UpdatedBy { get; set; }
 
         public virtual Department? Department { get; set; }
-        public virtual ICollection<StudentClass> StudentClasses { get; set; } = new List<StudentClass>();
+        public virtual ICollection<User> Students { get; set; } = new List<User>();
+        public virtual ICollection<ClassCourse> ClassCourses { get; set; } = new List<ClassCourse>();
     }
 }

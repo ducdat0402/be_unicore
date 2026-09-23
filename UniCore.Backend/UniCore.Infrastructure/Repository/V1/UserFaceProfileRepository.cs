@@ -1,15 +1,16 @@
+using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using UniCore.Application.Contract.Repository.Enitity.v1;
 using UniCore.Application.Entity;
 using UniCore.Helper.Constant;
 using UniCore.Infrastructure.Database;
-using UniCore.Infrastructure.Repository.Common;
+using UniCore.Infrastructure.Repository.Base;
 
 namespace UniCore.Infrastructure.Repository.V1
 {
-    public class UserFaceProfileRepository : BaseRepository<UserFaceProfile>, IUserFaceProfileRepository
+    public class UserFaceProfileRepository : RepositoryEFCoreBase<UserFaceProfile>, IUserFaceProfileRepository
     {
-        public UserFaceProfileRepository(UniCoreDbContext context) : base(context) { }
+        public UserFaceProfileRepository(UniCoreDbContext context, IMapper mapper) : base(context, mapper) { }
 
         public async Task<UserFaceProfile?> GetByUserIdAsync(string userId, CancellationToken cancellationToken = default)
         {

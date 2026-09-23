@@ -14,3 +14,17 @@ CREATE TABLE [dbo].[user_tokens] (
     PRIMARY KEY CLUSTERED ([id] ASC),
     CONSTRAINT [FK_user_tokens_users] FOREIGN KEY ([user_id]) REFERENCES [dbo].[users] ([id]) ON DELETE CASCADE
 );
+GO
+
+CREATE NONCLUSTERED INDEX [IX_user_tokens_user_id]
+    ON [dbo].[user_tokens] ([user_id] ASC, [is_active] ASC);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_user_tokens_jti]
+    ON [dbo].[user_tokens] ([jti] ASC)
+    WHERE [jti] IS NOT NULL;
+GO
+
+CREATE NONCLUSTERED INDEX [IX_user_tokens_expires_at]
+    ON [dbo].[user_tokens] ([expires_at] ASC);
+GO

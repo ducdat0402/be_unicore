@@ -1,9 +1,11 @@
+using UniCore.Application.Contract.RequestHandlerHub;
+
 namespace UniCore.Application.Feature.v1.FaceAuth.SetPin
 {
     /// <summary>
     /// Request DTO for setting face auth PIN.
     /// </summary>
-    public class SetPinRequestDTO
+    public class SetPinRequestDTO : IRequest<SetPinResponseDTO>
     {
         /// <summary>
         /// User ID from JWT token (set by controller).

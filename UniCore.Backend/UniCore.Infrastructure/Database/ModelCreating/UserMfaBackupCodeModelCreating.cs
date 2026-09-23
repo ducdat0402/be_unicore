@@ -28,6 +28,10 @@ namespace UniCore.Infrastructure.Database.ModelCreating
                     .ValueGeneratedOnAdd()
                     .HasDefaultValueSql("GETDATE()");
 
+                entity.HasIndex(e => new { e.UserId, e.IsUsed })
+                    .HasDatabaseName("IX_user_mfa_backup_codes_user_id")
+                    .IncludeProperties(e => e.CodeHash);
+
                 entity.HasOne(e => e.User)
                     .WithMany(u => u.UserMfaBackupCodes)
                     .HasForeignKey(e => e.UserId)

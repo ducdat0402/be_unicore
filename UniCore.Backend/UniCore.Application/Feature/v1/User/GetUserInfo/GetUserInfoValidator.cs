@@ -1,18 +1,14 @@
-﻿using FluentValidation;
+using FluentValidation;
+
 namespace UniCore.Application.Feature.v1.User.GetUserInfo
 {
-
-    namespace UniCore.Application.Feature.v1.User.GetUserPermission
+    public class GetUserInfoValidator : AbstractValidator<GetUserInfoRequestDTO>
     {
-        public class GetUserPermissionValidator : AbstractValidator<GetUserInfoRequestDTO>
+        public GetUserInfoValidator()
         {
-            public GetUserPermissionValidator()
-            {
-                RuleFor(x => x.UserID)
-                    .NotEmpty()
-                    .WithMessage("Please specify a User ID");
-            }
+            RuleFor(x => x.UserID)
+                .NotEmpty()
+                .WithMessage("Please specify a User ID");
         }
     }
-
 }

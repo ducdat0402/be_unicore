@@ -1,6 +1,8 @@
+using UniCore.Application.Contract.RequestHandlerHub;
+
 namespace UniCore.Application.Feature.v1.Announcement.MarkAnnouncementAcknowledged
 {
-    public class MarkAnnouncementAcknowledgedRequestDTO
+    public class MarkAnnouncementAcknowledgedRequestDTO : IRequest<MarkAnnouncementAcknowledgedResponseDTO>
     {
         /// <summary>
         /// Announcement ID.

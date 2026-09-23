@@ -39,6 +39,7 @@ namespace UniCore.Application.Feature.v1.Permission.UpdatePermission
 
             entity.Name = request.Name;
             entity.Resource = request.Resource;
+            entity.Action = request.Action;
             entity.Description = request.Description;
             entity.IsActive = request.IsActive;
             entity.UpdatedAt = DateTime.UtcNow;

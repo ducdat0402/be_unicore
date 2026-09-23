@@ -39,7 +39,15 @@ namespace UniCore.Infrastructure.Database.ModelCreating
                 entity.Property(e => e.CreatedBy).HasColumnName("created_by").HasMaxLength(50);
                 entity.Property(e => e.UpdatedBy).HasColumnName("updated_by").HasMaxLength(50);
 
-                entity.HasIndex(e => e.Email).IsUnique();
+                entity.HasIndex(e => e.Email)
+                    .IsUnique()
+                    .HasDatabaseName("UQ_whitelisted_emails_email");
+
+                entity.HasIndex(e => e.StudentId)
+                    .HasDatabaseName("IX_whitelisted_emails_student_id");
+
+                entity.HasIndex(e => new { e.IsConfirmed, e.IsActive, e.IsDeleted })
+                    .HasDatabaseName("IX_whitelisted_emails_confirmed_active");
 
                 entity.HasOne(e => e.Student)
                     .WithMany(s => s.WhitelistedEmails)

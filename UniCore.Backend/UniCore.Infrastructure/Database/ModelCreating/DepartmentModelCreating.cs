@@ -38,8 +38,16 @@ namespace UniCore.Infrastructure.Database.ModelCreating
                 entity.Property(e => e.CreatedBy).HasColumnName("created_by").HasMaxLength(50);
                 entity.Property(e => e.UpdatedBy).HasColumnName("updated_by").HasMaxLength(50);
 
-                entity.HasIndex(e => e.Name).IsUnique();
-                entity.HasIndex(e => e.Code).IsUnique();
+                entity.HasIndex(e => e.Name)
+                    .IsUnique()
+                    .HasDatabaseName("UQ_departments_name");
+
+                entity.HasIndex(e => e.Code)
+                    .IsUnique()
+                    .HasDatabaseName("UQ_departments_code");
+
+                entity.HasIndex(e => new { e.IsDeleted, e.IsActive })
+                    .HasDatabaseName("IX_departments_active_deleted");
             });
         }
     }

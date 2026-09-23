@@ -4,6 +4,7 @@ using MapsterMapper;
 using UniCore.Application.Contract.Repository.Enitity.v1;
 using UniCore.Application.Contract.RequestHandlerHub;
 using UniCore.Application.DTO.Entity;
+using UniCore.Application.Entity;
 
 namespace UniCore.Application.Feature.v1.Permission.CreatePermission
 {
@@ -37,6 +38,7 @@ namespace UniCore.Application.Feature.v1.Permission.CreatePermission
                 Code = string.IsNullOrWhiteSpace(request.Code) ? $"{request.Resource}.{request.Action}".ToUpper() : request.Code,
                 Name = request.Name,
                 Resource = request.Resource,
+                Action = request.Action,
                 Description = request.Description,
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow
