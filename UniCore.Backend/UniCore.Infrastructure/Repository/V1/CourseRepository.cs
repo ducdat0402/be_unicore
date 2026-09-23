@@ -13,7 +13,7 @@ namespace UniCore.Infrastructure.Repository.V1
         {
         }
 
-        public async Task<IEnumerable<Course>?> GetCourseInfosByIds(IEnumerable<string> courseIds, CancellationToken ct = default)
+        public async Task<IEnumerable<Course>?> GetCourseInfosByIdsAsync(IEnumerable<string> courseIds, CancellationToken ct = default)
         {
             var results = await _dbSet
                                 .Where(x => courseIds.Contains(x.Id))

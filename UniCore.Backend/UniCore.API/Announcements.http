@@ -1,0 +1,188 @@
+# Announcement API smoke tests (REST Client — VS Code / Cursor)
+# Prerequisites: SQL seeded, appsettings.json configured, API running (default http://localhost:5290)
+# Seed users: admin / student1 — password per your DB seed (try Password123! if unsure)
+
+@host = http://localhost:5290
+@api = {{host}}/api/v1
+
+### ========== AUTH ==========
+
+# @name adminLogin
+POST {{api}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "Password123!"
+}
+
+###
+
+# @name studentLogin
+POST {{api}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "student1",
+  "password": "Password123!"
+}
+
+###
+
+@adminToken = {{adminLogin.response.body.data.accessToken}}
+@studentToken = {{studentLogin.response.body.data.accessToken}}
+
+### ========== PUBLIC (no auth) ==========
+
+GET {{api}}/public/announcements
+Accept: application/json
+
+###
+
+GET {{api}}/public/announcements/anc-welcome-001
+Accept: application/json
+
+### ========== ADMIN — list & detail ==========
+
+GET {{api}}/admin/announcements?pageNumber=1&pageSize=10
+Authorization: Bearer {{adminToken}}
+Accept: application/json
+
+###
+
+GET {{api}}/admin/announcements/anc-welcome-001
+Authorization: Bearer {{adminToken}}
+Accept: application/json
+
+### ========== ADMIN — target search (raw { data, meta }) ==========
+
+GET {{api}}/admin/announcements/targets/departments?search=SE&limit=10
+Authorization: Bearer {{adminToken}}
+
+###
+
+GET {{api}}/admin/announcements/targets/classes?search=CLS&limit=10
+Authorization: Bearer {{adminToken}}
+
+###
+
+GET {{api}}/admin/announcements/targets/courses?search=SQL&limit=10
+Authorization: Bearer {{adminToken}}
+
+###
+
+GET {{api}}/admin/announcements/targets/students?search=STD&limit=10
+Authorization: Bearer {{adminToken}}
+
+### ========== ADMIN — preview recipients ==========
+
+POST {{api}}/admin/announcements/preview-recipients
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "scopeType": "PUBLIC",
+  "targets": [],
+  "targetStudentIds": []
+}
+
+###
+
+POST {{api}}/admin/announcements/preview-recipients
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "scopeType": "SPECIFIC_STUDENTS",
+  "targets": [],
+  "targetStudentIds": ["usr-student-001"]
+}
+
+### ========== ADMIN — create PUBLIC (adjust dates to UTC future) ==========
+
+# @name createPublic
+POST {{api}}/admin/announcements
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "title": "API test PUBLIC announcement",
+  "description": "Smoke test",
+  "content": "<p>Created from Announcements.http</p>",
+  "type": "NORMAL",
+  "scope_type": "PUBLIC",
+  "requireAcknowledgement": false,
+  "publish_date": "2026-01-01T00:00:00Z",
+  "expired_date": "2027-12-31T23:59:59Z"
+}
+
+###
+
+@newAnnouncementId = {{createPublic.response.body.data.id}}
+
+### ========== ADMIN — update / delivery report / delete ==========
+
+PUT {{api}}/admin/announcements/{{newAnnouncementId}}
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "title": "API test PUBLIC (updated)",
+  "description": "Updated",
+  "content": "<p>Updated</p>",
+  "type": "NORMAL",
+  "scope_type": "PUBLIC",
+  "requireAcknowledgement": false,
+  "publish_date": "2026-01-01T00:00:00Z",
+  "expired_date": "2027-12-31T23:59:59Z"
+}
+
+###
+
+GET {{api}}/admin/announcements/{{newAnnouncementId}}/delivery-report
+Authorization: Bearer {{adminToken}}
+
+###
+
+DELETE {{api}}/admin/announcements/{{newAnnouncementId}}
+Authorization: Bearer {{adminToken}}
+
+### ========== STUDENT — workflow ==========
+
+GET {{api}}/student/announcements/me?status=active
+Authorization: Bearer {{studentToken}}
+
+###
+
+GET {{api}}/student/announcements/get-new
+Authorization: Bearer {{studentToken}}
+
+###
+
+GET {{api}}/student/announcements/me/anc-welcome-001
+Authorization: Bearer {{studentToken}}
+
+###
+
+POST {{api}}/student/announcements/confirm-acknowledged
+Authorization: Bearer {{studentToken}}
+Content-Type: application/json
+
+{
+  "announcement_id": "anc-exam-002"
+}
+
+### ========== STUDENT — legacy paginated / view / acknowledge ==========
+
+GET {{api}}/student/announcements?page=1&pageSize=10
+Authorization: Bearer {{studentToken}}
+
+###
+
+POST {{api}}/student/announcements/anc-welcome-001/view
+Authorization: Bearer {{studentToken}}
+
+###
+
+POST {{api}}/student/announcements/anc-exam-002/acknowledge
+Authorization: Bearer {{studentToken}}

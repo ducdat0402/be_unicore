@@ -20,3 +20,4 @@ GO
 CREATE NONCLUSTERED INDEX [IX_announcement_students_ack]
     ON [dbo].[announcement_students] ([announcement_id] ASC, [acknowledged_at] ASC);
 GO
+

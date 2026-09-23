@@ -57,4 +57,3 @@ publish/
 !**/appsettings.Example.json
 
 .agent
-.cursor/    

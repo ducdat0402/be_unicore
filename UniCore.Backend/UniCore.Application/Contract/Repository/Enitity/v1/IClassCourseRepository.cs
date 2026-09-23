@@ -1,0 +1,9 @@
+﻿using UniCore.Application.Entity;
+
+namespace UniCore.Application.Contract.Repository.Enitity.v1
+{
+    public interface IClassCourseRepository : IRepository<ClassCourse>
+    {
+        Task<IEnumerable<string>?> GetCourseIdsByClassIdAsync(string classId, CancellationToken ct = default);
+    }
+}
