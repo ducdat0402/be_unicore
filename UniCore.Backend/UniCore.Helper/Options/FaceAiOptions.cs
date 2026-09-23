@@ -8,9 +8,9 @@ namespace UniCore.Helper.Options
         public const string SectionName = "FaceAi";
 
         /// <summary>
-        /// Base URL of Face Recognition FastAPI, e.g., http://127.0.0.1:8001
+        /// Base URL of Face Recognition FastAPI, e.g., http://172.29.50.34:8001
         /// </summary>
-        public string BaseUrl { get; set; } = "http://127.0.0.1:8001";
+        public string BaseUrl { get; set; } = "http://172.29.50.34:8001";
 
         /// <summary>
         /// POST /ai/face/enroll — multipart: user_id, username, face_1...face_5

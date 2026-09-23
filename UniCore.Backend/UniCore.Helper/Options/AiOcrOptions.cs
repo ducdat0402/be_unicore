@@ -4,8 +4,8 @@ namespace UniCore.Helper.Options
     {
         public const string SectionName = "AiOcr";
 
-        /// <summary>Base URL of MaivenPoint OCR FastAPI, e.g. http://127.0.0.1:8000</summary>
-        public string BaseUrl { get; set; } = "http://127.0.0.1:8000";
+        /// <summary>Base URL of MaivenPoint OCR FastAPI, e.g. http://172.29.50.34:8000</summary>
+        public string BaseUrl { get; set; } = "http://172.29.50.34:8000";
 
         /// <summary>From OCR README / Swagger: POST /ocr</summary>
         public string ScanPath { get; set; } = "/ocr";
