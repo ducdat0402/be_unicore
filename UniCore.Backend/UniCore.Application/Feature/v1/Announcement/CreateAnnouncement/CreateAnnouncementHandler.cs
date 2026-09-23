@@ -49,13 +49,19 @@ namespace UniCore.Application.Feature.v1.Announcement.CreateAnnouncement
                 type = AnnouncementConstants.Type.Normal;
             }
 
-            await _audienceService.ValidateScopeAsync(
+            var scopeValue = AnnouncementScopeStorage.BuildScopeValueForRequest(
                 scopeType,
                 request.ScopeValue,
-                request.TargetStudentIds,
-                cancellationToken);
+                request.Targets);
+            AnnouncementScopeStorage.EnsureStoredLength(scopeValue);
 
-            var scopeValue = AnnouncementLifecycle.NormalizeScopeValue(scopeType, request.ScopeValue);
+            var targetStudentIds = ResolveTargetStudentIds(scopeType, request.TargetStudentIds, request.Targets);
+
+            await _audienceService.ValidateScopeAsync(
+                scopeType,
+                scopeValue,
+                targetStudentIds,
+                cancellationToken);
             var now = DateTime.UtcNow;
             var status = AnnouncementLifecycle.ComputeStatus(request.PublishDate, request.ExpiredDate, now);
 
@@ -80,7 +86,7 @@ namespace UniCore.Application.Feature.v1.Announcement.CreateAnnouncement
 
             await _deliveryService.ApplyAudienceSideEffectsAsync(
                 entity,
-                request.TargetStudentIds,
+                targetStudentIds,
                 cancellationToken);
 
             await _announcementRepository.UpdateAsync(entity, cancellationToken);
@@ -91,6 +97,21 @@ namespace UniCore.Application.Feature.v1.Announcement.CreateAnnouncement
             {
                 Announcement = _mapper.Map<AnnouncementDTO>(created)
             };
+        }
+
+        private static List<string> ResolveTargetStudentIds(
+            string scopeType,
+            List<string> targetStudentIds,
+            List<string> targets)
+        {
+            if (string.Equals(scopeType, AnnouncementConstants.Scope.SpecificStudents, StringComparison.OrdinalIgnoreCase)
+                && targetStudentIds.Count == 0
+                && targets.Count > 0)
+            {
+                return targets;
+            }
+
+            return targetStudentIds;
         }
     }
 }

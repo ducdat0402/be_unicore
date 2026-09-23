@@ -43,34 +43,34 @@ namespace UniCore.Application.Service.v1
                     "ScopeType must be PUBLIC, STUDENTS, DEPARTMENT, CLASS, COURSE, or SPECIFIC_STUDENTS.");
             }
 
-            var targets = AnnouncementLifecycle.NormalizeIds(targetStudentIds);
+            var studentTargets = AnnouncementLifecycle.NormalizeIds(targetStudentIds);
 
             switch (scope)
             {
                 case AnnouncementConstants.Scope.Public:
-                    if (!string.IsNullOrWhiteSpace(scopeValue) || targets.Count > 0)
+                    if (!string.IsNullOrWhiteSpace(scopeValue) || studentTargets.Count > 0)
                     {
                         throw new InvalidOperationException("PUBLIC scope must not include scopeValue or targetStudentIds.");
                     }
                     break;
 
                 case AnnouncementConstants.Scope.Students:
-                    if (!string.IsNullOrWhiteSpace(scopeValue) || targets.Count > 0)
+                    if (!string.IsNullOrWhiteSpace(scopeValue) || studentTargets.Count > 0)
                     {
                         throw new InvalidOperationException("STUDENTS scope must not include scopeValue or targetStudentIds.");
                     }
                     break;
 
                 case AnnouncementConstants.Scope.Department:
-                    await EnsureDepartmentAsync(scopeValue, targets, cancellationToken);
+                    await EnsureScopeTargetsAsync(scope, scopeValue, studentTargets, EnsureDepartmentIdsAsync, cancellationToken);
                     break;
 
                 case AnnouncementConstants.Scope.Class:
-                    await EnsureClassAsync(scopeValue, targets, cancellationToken);
+                    await EnsureScopeTargetsAsync(scope, scopeValue, studentTargets, EnsureClassIdsAsync, cancellationToken);
                     break;
 
                 case AnnouncementConstants.Scope.Course:
-                    await EnsureCourseAsync(scopeValue, targets, cancellationToken);
+                    await EnsureScopeTargetsAsync(scope, scopeValue, studentTargets, EnsureCourseIdsAsync, cancellationToken);
                     break;
 
                 case AnnouncementConstants.Scope.SpecificStudents:
@@ -78,15 +78,15 @@ namespace UniCore.Application.Service.v1
                     {
                         throw new InvalidOperationException("SPECIFIC_STUDENTS scopeValue must be null; provide targetStudentIds.");
                     }
-                    if (targets.Count == 0)
+                    if (studentTargets.Count == 0)
                     {
                         throw new InvalidOperationException("SPECIFIC_STUDENTS requires at least one targetStudentId.");
                     }
-                    var active = await _userRepository.GetActiveStudentIdsByIdsAsync(targets, cancellationToken);
-                    if (active.Count != targets.Count)
+                    var active = await _userRepository.GetActiveVerifiedStudentIdsByIdsAsync(studentTargets, cancellationToken);
+                    if (active.Count != studentTargets.Count)
                     {
-                        var missing = targets.Except(active, StringComparer.OrdinalIgnoreCase);
-                        throw new KeyNotFoundException($"Active student(s) not found: {string.Join(", ", missing)}");
+                        var missing = studentTargets.Except(active, StringComparer.OrdinalIgnoreCase);
+                        throw new KeyNotFoundException($"Active verified student(s) not found: {string.Join(", ", missing)}");
                     }
                     break;
             }
@@ -107,52 +107,121 @@ namespace UniCore.Application.Service.v1
                 AnnouncementConstants.Scope.Students =>
                     await _userRepository.GetActiveVerifiedStudentIdsAsync(cancellationToken),
                 AnnouncementConstants.Scope.Department =>
-                    await _studentClassRepository.GetActiveStudentIdsByDepartmentIdAsync(scopeValue!, cancellationToken),
+                    await ResolveStudentsByDepartmentIdsAsync(scopeValue, cancellationToken),
                 AnnouncementConstants.Scope.Class =>
-                    await _studentClassRepository.GetActiveStudentIdsByClassIdAsync(scopeValue!, cancellationToken),
+                    await ResolveStudentsByClassIdsAsync(scopeValue, cancellationToken),
                 AnnouncementConstants.Scope.Course =>
-                    await _courseStudentRepository.GetActiveStudentIdsByCourseIdAsync(scopeValue!, cancellationToken),
+                    await ResolveStudentsByCourseIdsAsync(scopeValue, cancellationToken),
                 AnnouncementConstants.Scope.SpecificStudents =>
-                    await _userRepository.GetActiveStudentIdsByIdsAsync(
+                    await _userRepository.GetActiveVerifiedStudentIdsByIdsAsync(
                         AnnouncementLifecycle.NormalizeIds(targetStudentIds), cancellationToken),
                 _ => Array.Empty<string>()
             };
         }
 
-        private async Task EnsureDepartmentAsync(string? scopeValue, List<string> targets, CancellationToken ct)
+        private static async Task EnsureScopeTargetsAsync(
+            string scopeLabel,
+            string? scopeValue,
+            List<string> studentTargets,
+            Func<List<string>, CancellationToken, Task> ensureEntitiesAsync,
+            CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(scopeValue))
-                throw new InvalidOperationException("DEPARTMENT requires scopeValue (department id).");
-            if (targets.Count > 0)
-                throw new InvalidOperationException("DEPARTMENT must not include targetStudentIds.");
+            if (studentTargets.Count > 0)
+            {
+                throw new InvalidOperationException($"{scopeLabel} must not include targetStudentIds.");
+            }
 
-            var dept = await _departmentRepository.GetByIdAsync(scopeValue, ct);
-            if (dept == null || dept.IsDeleted || !dept.IsActive)
-                throw new KeyNotFoundException($"Active department '{scopeValue}' was not found.");
+            var ids = AnnouncementScopeStorage.ParseTargetIds(scopeValue);
+            if (ids.Count == 0)
+            {
+                throw new InvalidOperationException($"{scopeLabel} requires at least one target id in scope_value.");
+            }
+
+            await ensureEntitiesAsync(ids, cancellationToken);
         }
 
-        private async Task EnsureClassAsync(string? scopeValue, List<string> targets, CancellationToken ct)
+        private async Task EnsureDepartmentIdsAsync(List<string> ids, CancellationToken ct)
         {
-            if (string.IsNullOrWhiteSpace(scopeValue))
-                throw new InvalidOperationException("CLASS requires scopeValue (class id).");
-            if (targets.Count > 0)
-                throw new InvalidOperationException("CLASS must not include targetStudentIds.");
-
-            var schoolClass = await _schoolClassRepository.GetByIdAsync(scopeValue, ct);
-            if (schoolClass == null || schoolClass.IsDeleted || !schoolClass.IsActive)
-                throw new KeyNotFoundException($"Active class '{scopeValue}' was not found.");
+            foreach (var id in ids)
+            {
+                var dept = await _departmentRepository.GetByIdAsync(id, ct);
+                if (dept == null || dept.IsDeleted || !dept.IsActive)
+                {
+                    throw new KeyNotFoundException($"Active department '{id}' was not found.");
+                }
+            }
         }
 
-        private async Task EnsureCourseAsync(string? scopeValue, List<string> targets, CancellationToken ct)
+        private async Task EnsureClassIdsAsync(List<string> ids, CancellationToken ct)
         {
-            if (string.IsNullOrWhiteSpace(scopeValue))
-                throw new InvalidOperationException("COURSE requires scopeValue (course id).");
-            if (targets.Count > 0)
-                throw new InvalidOperationException("COURSE must not include targetStudentIds.");
+            foreach (var id in ids)
+            {
+                var schoolClass = await _schoolClassRepository.GetByIdAsync(id, ct);
+                if (schoolClass == null || schoolClass.IsDeleted || !schoolClass.IsActive)
+                {
+                    throw new KeyNotFoundException($"Active class '{id}' was not found.");
+                }
+            }
+        }
 
-            var course = await _courseRepository.GetByIdAsync(scopeValue, ct);
-            if (course == null || course.IsDeleted || !course.IsActive)
-                throw new KeyNotFoundException($"Active course '{scopeValue}' was not found.");
+        private async Task EnsureCourseIdsAsync(List<string> ids, CancellationToken ct)
+        {
+            foreach (var id in ids)
+            {
+                var course = await _courseRepository.GetByIdAsync(id, ct);
+                if (course == null || course.IsDeleted || !course.IsActive)
+                {
+                    throw new KeyNotFoundException($"Active course '{id}' was not found.");
+                }
+            }
+        }
+
+        private async Task<IReadOnlyList<string>> ResolveStudentsByDepartmentIdsAsync(string? scopeValue, CancellationToken ct)
+        {
+            var ids = AnnouncementScopeStorage.ParseTargetIds(scopeValue);
+            var all = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var id in ids)
+            {
+                var students = await _studentClassRepository.GetActiveStudentIdsByDepartmentIdAsync(id, ct);
+                foreach (var studentId in students)
+                {
+                    all.Add(studentId);
+                }
+            }
+
+            return all.ToList();
+        }
+
+        private async Task<IReadOnlyList<string>> ResolveStudentsByClassIdsAsync(string? scopeValue, CancellationToken ct)
+        {
+            var ids = AnnouncementScopeStorage.ParseTargetIds(scopeValue);
+            var all = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var id in ids)
+            {
+                var students = await _studentClassRepository.GetActiveStudentIdsByClassIdAsync(id, ct);
+                foreach (var studentId in students)
+                {
+                    all.Add(studentId);
+                }
+            }
+
+            return all.ToList();
+        }
+
+        private async Task<IReadOnlyList<string>> ResolveStudentsByCourseIdsAsync(string? scopeValue, CancellationToken ct)
+        {
+            var ids = AnnouncementScopeStorage.ParseTargetIds(scopeValue);
+            var all = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var id in ids)
+            {
+                var students = await _courseStudentRepository.GetActiveStudentIdsByCourseIdAsync(id, ct);
+                foreach (var studentId in students)
+                {
+                    all.Add(studentId);
+                }
+            }
+
+            return all.ToList();
         }
     }
 }

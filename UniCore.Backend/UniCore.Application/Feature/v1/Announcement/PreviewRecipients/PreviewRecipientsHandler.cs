@@ -2,6 +2,7 @@ using FluentValidation;
 using FluentValidation.Results;
 using UniCore.Application.Contract.RequestHandlerHub;
 using UniCore.Application.Contract.Service.v1;
+using UniCore.Application.Feature.v1.Announcement;
 using UniCore.Helper.Constant;
 
 namespace UniCore.Application.Feature.v1.Announcement.PreviewRecipients
@@ -28,10 +29,19 @@ namespace UniCore.Application.Feature.v1.Announcement.PreviewRecipients
             }
 
             var scopeType = request.ScopeType.Trim().ToUpperInvariant();
+            var scopeValue = AnnouncementScopeStorage.BuildScopeValueForRequest(
+                scopeType,
+                request.ScopeValue,
+                request.Targets);
+            var targetStudentIds = request.TargetStudentIds.Count > 0
+                ? request.TargetStudentIds
+                : (string.Equals(scopeType, AnnouncementConstants.Scope.SpecificStudents, StringComparison.OrdinalIgnoreCase)
+                    ? request.Targets
+                    : request.TargetStudentIds);
 
             if (scopeType == AnnouncementConstants.Scope.Public)
             {
-                await _audienceService.ValidateScopeAsync(request.ScopeType, request.ScopeValue, null, cancellationToken);
+                await _audienceService.ValidateScopeAsync(request.ScopeType, scopeValue, null, cancellationToken);
                 return new PreviewRecipientsResponseDTO
                 {
                     RecipientCount = null,
@@ -42,8 +52,8 @@ namespace UniCore.Application.Feature.v1.Announcement.PreviewRecipients
 
             var studentIds = await _audienceService.ResolveStudentIdsAsync(
                 request.ScopeType,
-                request.ScopeValue,
-                request.TargetStudentIds,
+                scopeValue,
+                targetStudentIds,
                 cancellationToken);
 
             return new PreviewRecipientsResponseDTO

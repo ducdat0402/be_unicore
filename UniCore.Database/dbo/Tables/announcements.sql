@@ -7,7 +7,7 @@ CREATE TABLE [dbo].[announcements] (
     [type]                    VARCHAR (20)   NOT NULL,
     [status]                  VARCHAR (20)   DEFAULT ('UPCOMING') NOT NULL,
     [scope_type]              VARCHAR (20)   NOT NULL,
-    [scope_value]             VARCHAR (50)   NULL,
+    [scope_value]             VARCHAR (4000) NULL,
     [require_acknowledgement] BIT            DEFAULT ((0)) NOT NULL,
     [publish_date]            DATETIME2 (7)  NOT NULL,
     [expired_date]            DATETIME2 (7)  NOT NULL,

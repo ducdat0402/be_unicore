@@ -13,5 +13,14 @@ namespace UniCore.Application.Contract.Repository.Enitity.v1
         Task<List<(string StudentId, string Email)>> GetActiveStudentEmailsByIdsAsync(
             IEnumerable<string> studentIds,
             CancellationToken cancellationToken = default);
+
+        Task<List<string>> GetActiveVerifiedStudentIdsByIdsAsync(
+            IEnumerable<string> studentIds,
+            CancellationToken cancellationToken = default);
+
+        Task<(List<User> Items, int TotalCount)> SearchActiveVerifiedStudentsAsync(
+            string? search,
+            int limit,
+            CancellationToken cancellationToken = default);
     }
 }

@@ -116,5 +116,71 @@ namespace UniCore.Infrastructure.Repository.V1
 
             return rows.Select(r => (r.Id, r.Email)).ToList();
         }
+
+        public async Task<List<string>> GetActiveVerifiedStudentIdsByIdsAsync(
+            IEnumerable<string> studentIds,
+            CancellationToken cancellationToken = default)
+        {
+            var ids = studentIds
+                .Where(id => !string.IsNullOrWhiteSpace(id))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (ids.Count == 0)
+            {
+                return new List<string>();
+            }
+
+            return await _dbSet
+                .AsNoTracking()
+                .Where(u =>
+                    ids.Contains(u.Id) &&
+                    u.IsActive &&
+                    u.UserRoles.Any(ur => ur.Role != null && ur.Role.Name == "Student" && ur.Role.IsActive) &&
+                    u.UserPersonId != null &&
+                    u.UserPersonId.IsActive &&
+                    u.UserPersonId.VerificationStatus == "VERIFIED")
+                .Select(u => u.Id)
+                .ToListAsync(cancellationToken);
+        }
+
+        public async Task<(List<User> Items, int TotalCount)> SearchActiveVerifiedStudentsAsync(
+            string? search,
+            int limit,
+            CancellationToken cancellationToken = default)
+        {
+            var query = _dbSet
+                .AsNoTracking()
+                .Include(u => u.UserProfile)
+                .Include(u => u.UserPersonId)
+                .Where(u =>
+                    u.IsActive &&
+                    u.UserRoles.Any(ur => ur.Role != null && ur.Role.Name == "Student" && ur.Role.IsActive) &&
+                    u.UserPersonId != null &&
+                    u.UserPersonId.IsActive &&
+                    u.UserPersonId.VerificationStatus == "VERIFIED");
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var term = search.Trim();
+                query = query.Where(u =>
+                    EF.Functions.Like(u.Username, $"%{term}%") ||
+                    (u.Code != null && EF.Functions.Like(u.Code, $"%{term}%")) ||
+                    (u.UserProfile != null && u.UserProfile.FullName != null &&
+                     EF.Functions.Like(u.UserProfile.FullName, $"%{term}%")) ||
+                    (u.UserProfile != null && u.UserProfile.FirstName != null &&
+                     EF.Functions.Like(u.UserProfile.FirstName, $"%{term}%")) ||
+                    (u.UserProfile != null && u.UserProfile.LastName != null &&
+                     EF.Functions.Like(u.UserProfile.LastName, $"%{term}%")));
+            }
+
+            var totalCount = await query.CountAsync(cancellationToken);
+            var items = await query
+                .OrderBy(u => u.Username)
+                .Take(limit)
+                .ToListAsync(cancellationToken);
+
+            return (items, totalCount);
+        }
     }
 }
