@@ -45,15 +45,7 @@ namespace UniCore.Infrastructure.Database.ModelCreating
 
                 entity.HasIndex(e => new { e.ClassId, e.StudentId }).IsUnique();
 
-                entity.HasOne(e => e.SchoolClass)
-                    .WithMany(c => c.StudentClasses)
-                    .HasForeignKey(e => e.ClassId)
-                    .OnDelete(DeleteBehavior.Restrict);
-
-                entity.HasOne(e => e.Student)
-                    .WithMany(s => s.StudentClasses)
-                    .HasForeignKey(e => e.StudentId)
-                    .OnDelete(DeleteBehavior.Cascade);
+               
             });
         }
     }

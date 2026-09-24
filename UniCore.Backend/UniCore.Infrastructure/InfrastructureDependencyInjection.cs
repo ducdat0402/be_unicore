@@ -53,7 +53,25 @@ public static class InfrastructureDependencyInjection
 
         services.Configure<UniCore.Helper.Options.EmailOptions>(
             configuration.GetSection(UniCore.Helper.Options.EmailOptions.SectionName));
-        services.AddScoped<UniCore.Application.Contract.Service.v1.IEmailSender, UniCore.Infrastructure.Service.SmtpEmailSender>();
+
+        var emailProvider = configuration["Email:Provider"] ?? "Smtp";
+        if (string.Equals(emailProvider, "HttpSimulation", StringComparison.OrdinalIgnoreCase))
+        {
+            services.AddHttpClient<UniCore.Application.Contract.Service.v1.IEmailSender, UniCore.Infrastructure.Service.HttpSimulationEmailSender>(
+                (sp, client) =>
+                {
+                    var opts = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<UniCore.Helper.Options.EmailOptions>>().Value;
+                    var baseUrl = string.IsNullOrWhiteSpace(opts.SimulationBaseUrl)
+                        ? "http://127.0.0.1:5289"
+                        : opts.SimulationBaseUrl.TrimEnd('/');
+                    client.BaseAddress = new Uri(baseUrl + "/");
+                    client.Timeout = TimeSpan.FromSeconds(30);
+                });
+        }
+        else
+        {
+            services.AddScoped<UniCore.Application.Contract.Service.v1.IEmailSender, UniCore.Infrastructure.Service.SmtpEmailSender>();
+        }
 
         services.Configure<UniCore.Helper.Options.AiOcrOptions>(
             configuration.GetSection(UniCore.Helper.Options.AiOcrOptions.SectionName));

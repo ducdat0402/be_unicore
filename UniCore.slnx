@@ -4,6 +4,8 @@
     <Project Path="UniCore.Backend/UniCore.Application/UniCore.Application.csproj" />
     <Project Path="UniCore.Backend/UniCore.Helper/UniCore.Helper.csproj" />
     <Project Path="UniCore.Backend/UniCore.Infrastructure/UniCore.Infrastructure.csproj" />
+    <Project Path="UniCore.Backend/StimulationEmailProvider/StimulationEmailProvider.csproj" />
+    <Project Path="UniCore.Backend/StimulationGoogleProvider/StimulationGoogleProvider.csproj" />
   </Folder>
   <Folder Name="/UniCore.Database/">
     <File Path="UniCore.Database/Query.sql" />

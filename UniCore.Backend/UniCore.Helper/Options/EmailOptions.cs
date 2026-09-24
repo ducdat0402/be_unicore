@@ -4,6 +4,12 @@ namespace UniCore.Helper.Options
     {
         public const string SectionName = "Email";
 
+        /// <summary>Smtp (production) or HttpSimulation (dev inbox on StimulationEmailProvider).</summary>
+        public string Provider { get; set; } = "Smtp";
+
+        /// <summary>Base URL when Provider=HttpSimulation (default same VM as API).</summary>
+        public string SimulationBaseUrl { get; set; } = "http://127.0.0.1:5289";
+
         public bool Enabled { get; set; }
         public string Host { get; set; } = string.Empty;
         public int Port { get; set; } = 587;
